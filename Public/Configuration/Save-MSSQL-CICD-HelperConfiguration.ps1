@@ -1,4 +1,4 @@
-Function Save-GitLabAPIConfiguration {
+Function Save-MSSQL-CICD-HelperConfiguration {
 [cmdletbinding()]
     param(
     [Parameter(Mandatory=$true,
