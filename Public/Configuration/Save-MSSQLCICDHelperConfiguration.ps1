@@ -1,4 +1,4 @@
-Function Save-MSSQL-CICD-HelperConfiguration {
+Function Save-MSSQLCICDHelperConfiguration {
 [cmdletbinding()]
     param(
     [Parameter(Mandatory=$true,
@@ -56,7 +56,7 @@ Function Save-MSSQL-CICD-HelperConfiguration {
             SQLPackageExe = $SQLPackageExePath
         }
         
-        $ConfigFile = "$env:appdata\MSSQL-CICD-Helper\MSSQL-CICD-HelperConfiguration.xml"
+        $ConfigFile = "$env:appdata\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml"
 
     } elseif ( $IsLinux ) {
 
@@ -66,7 +66,7 @@ Function Save-MSSQL-CICD-HelperConfiguration {
             SQLPackageExe = $SQLPackageExePath
         }
         
-        $ConfigFile = "{0}/.MSSQL-CICD-Helper/MSSQL-CICD-HelperConfiguration.xml" -f $HOME
+        $ConfigFile = "{0}/.MSSQLCICDHelper/MSSQLCICDHelperConfiguration.xml" -f $HOME
 
     } else {
         Write-Error "Unknown Platform"

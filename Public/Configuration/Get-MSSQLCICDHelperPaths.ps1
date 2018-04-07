@@ -1,6 +1,6 @@
-Function Get-MSSQL-CICD-HelperPaths {
+Function Get-MSSQLCICDHelperPaths {
     [cmdletbinding()]
-    [OutputType('mssql-cicd.Setting')]
+    [OutputType('mssqlcicd.Setting')]
     param(
         [Parameter(Mandatory=$true,
                HelpMessage='What to find: MSBuild, SQLPackage or Both',

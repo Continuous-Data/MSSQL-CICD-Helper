@@ -9,7 +9,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'MSSQL-CICD-Helper.psm1'
+RootModule = 'MSSQLCICDHelper.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.0.2'
@@ -30,7 +30,7 @@ Copyright = '(c) 2018 MSSQL-CICD-Helper. All rights reserved.'
 Description = 'Set of Powershell functions to aid in CI/CD processes to build with MSBuild and deploying various *pac files used in MSSQL Database deployment'
 
 # Minimum version of the Windows PowerShell engine required by this module
-PowerShellVersion = '3'
+#PowerShellVersion = '3'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -60,7 +60,7 @@ PowerShellVersion = '3'
 # TypesToProcess = @()
 
 # Format files (.ps1xml) to be loaded when importing this module
-FormatsToProcess = @('MSSQL-CICD-Helper.Format.ps1xml')
+FormatsToProcess = @('MSSQLCICDHelper.Format.ps1xml')
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 # NestedModules = @()
@@ -68,9 +68,9 @@ FormatsToProcess = @('MSSQL-CICD-Helper.Format.ps1xml')
 # Functions to export from this module
 FunctionsToExport = @(
     'ImportConfig',
-    'Get-MSSQL-CICD-HelperPaths',
-    'Save-MSSQL-CICD-HelperConfiguration',
-    'MSSQL-CICD-Tools'
+    'Get-MSSQLCICDHelperPaths',
+    'Save-MSSQLCICDHelperConfiguration'#,
+    #'MSSQL-CICD-Tools'
     )
 
 # Cmdlets to export from this module
