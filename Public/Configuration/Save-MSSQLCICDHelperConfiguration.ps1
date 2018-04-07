@@ -14,6 +14,9 @@ Function Save-MSSQLCICDHelperConfiguration {
     $MSBuildExePath
 
     )
+    Write-Output 'Config saving procedure started...'
+    
+    Write-Verbose 'Starting to append paths when input was w/o *.exe file.'
 
     $PATHS = @{
         MSBuild = $MSBuildExePath
@@ -21,16 +24,20 @@ Function Save-MSSQLCICDHelperConfiguration {
     }
     
     $pathstoappend = @()
-    Write-Output "modify"
+    #Write-Output "modify"
     $paths.Keys | ForEach-Object{
         if(-not($paths[$_] -like '*.exe')){
             $pathstoappend += $_
         }
     }
+
+    Write-Verbose "The following paths will be appended: $pathstoappend"
     
     $pathstoappend | ForEach-Object{
         $paths[$_] = "$($paths[$_].trimend('\'))\$($_).exe"
     }
+
+    Write-Verbose 'Testing if either appended paths exists with Get-ChildItem.'
 
     # testing if either path exists
     $paths.Keys | ForEach-Object {
@@ -39,9 +46,9 @@ Function Save-MSSQLCICDHelperConfiguration {
         }    
     }
     
-    
-
-    # Determine if *.exe was supplied or just a path.
+    Write-Verbose 'Finalized paths are:'
+    Write-Verbose "$paths"
+    Write-Verbose 'Starting to save config'
 
     if ( $IsWindows -or ( [version]$PSVersionTable.PSVersion -lt [version]"5.99.0" ) ) {
         
@@ -52,8 +59,8 @@ Function Save-MSSQLCICDHelperConfiguration {
         # }
         
         $Parameters = @{
-            MSBuildExe = $MSBuildExePath;
-            SQLPackageExe = $SQLPackageExePath
+            MSBuildExe = $PATHS['MSBuild'];
+            SQLPackageExe = $PATHS['SQLPackage'];
         }
         
         $ConfigFile = "$env:appdata\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml"
@@ -62,8 +69,8 @@ Function Save-MSSQLCICDHelperConfiguration {
 
 
         $Parameters = @{
-            MSBuildExe = $MSBuildExePath;
-            SQLPackageExe = $SQLPackageExePath
+            MSBuildExe = $PATHS['MSBuild'];
+            SQLPackageExe = $PATHS['SQLPackage'];
         }
         
         $ConfigFile = "{0}/.MSSQLCICDHelper/MSSQLCICDHelperConfiguration.xml" -f $HOME
@@ -72,6 +79,7 @@ Function Save-MSSQLCICDHelperConfiguration {
         Write-Error "Unknown Platform"
     }
 
+    Write-Verbose 'Testing config path.'
     if (-not (Test-Path (Split-Path $ConfigFile))) {
         New-Item -ItemType Directory -Path (Split-Path $ConfigFile) | Out-Null
 
@@ -79,5 +87,6 @@ Function Save-MSSQLCICDHelperConfiguration {
 
     $Parameters | Export-Clixml -Path $ConfigFile
     Remove-Variable Parameters
+    Write-Output "Configuration saved in $ConfigFile with $parameters"
 
 }
