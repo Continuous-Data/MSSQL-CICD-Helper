@@ -33,6 +33,11 @@ Function Get-MSSQLCICDHelperPaths {
             EXIT 1
         }
     }
-    Write-verbose "searching for $exestofind in $roothpath"
-    $exestofind
+    Write-verbose "searching for $exestofind in $rootpath"
+
+    $exestofind | ForEach-Object{
+        $results += Get-ChildItem -Path $rootpath -filter $_ -Recurse -ErrorAction SilentlyContinue
+    }
+    Write-Output 'Found the following full paths for given parameters. Please take note of these and use the desired path in Save-MSSQLCICDHelperConfiguration'
+    $results.FullName
 }
