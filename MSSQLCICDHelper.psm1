@@ -4,7 +4,7 @@ $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\ -Include *.ps1 -Recurse
 $Config = @( Get-ChildItem -Path $PSScriptRoot\Config\ -Include *.ps1 -Recurse -ErrorAction SilentlyContinue )
 
 #Dot source the files
-Foreach($import in @($Public + $Private + $Config)) {
+Foreach($import in @($Private + $Public + $Config)) {
     Try {
         . $import.fullname
     }

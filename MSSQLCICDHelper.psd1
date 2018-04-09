@@ -67,9 +67,10 @@ FormatsToProcess = @('MSSQLCICDHelper.Format.ps1xml')
 
 # Functions to export from this module
 FunctionsToExport = @(
-    'ImportConfig',
+    #'ImportConfig',
     'Get-MSSQLCICDHelperPaths',
-    'Save-MSSQLCICDHelperConfiguration'#,
+    'Save-MSSQLCICDHelperConfiguration',
+    'Get-MSSQLCICDHelperConfiguration'#,
     #'MSSQL-CICD-Tools'
     )
 

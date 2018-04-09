@@ -8,20 +8,10 @@ Function ImportConfig {
     ImportConfig
 #>
 
-    # if ( ( $null -ne $env:PSGitLabDomain) -and ( $null -ne $env:PSGitLabToken ) -and ( $null -ne $env:PSGitLabAPIVersion ) ) {
-    #     $Token = ConvertTo-SecureString -String $env:PSGitLabToken -AsPlainText -Force
-    #     [PSCustomObject]@{
-    #         Domain=$env:PSGitLabDomain
-    #         Token=$Token
-    #         APIVersion=$env:PSGitLabAPIVersion
-    #     }
-    #     break;
-    # }
-
     if ( $IsWindows -or ( [version]$PSVersionTable.PSVersion -lt [version]"5.99.0" ) ) {
-        $ConfigFile = "{0}\MSSQL-CICD-Helper\MSSQL-CICD-HelperConfiguration.xml" -f $env:appdata
+        $ConfigFile = "{0}\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml" -f $env:appdata
     } elseif ( $IsLinux ) {
-        $ConfigFile = "{0}/.MSSQL-CICD-Helper/MSSQL-CICD-HelperConfiguration.xml" -f $HOME
+        $ConfigFile = "{0}/.MSSQLCICDHelper/MSSQLCICDHelperConfiguration.xml" -f $HOME
     } else {
         Write-Error "Unknown Platform"
     }

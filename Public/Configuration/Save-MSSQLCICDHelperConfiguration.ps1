@@ -86,7 +86,6 @@ Function Save-MSSQLCICDHelperConfiguration {
     }
 
     $Parameters | Export-Clixml -Path $ConfigFile
+    Write-Output "Configuration saved in $ConfigFile"
     Remove-Variable Parameters
-    Write-Output "Configuration saved in $ConfigFile with $parameters"
-
 }
