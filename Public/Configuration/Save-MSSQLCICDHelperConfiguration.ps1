@@ -18,6 +18,10 @@ Function Save-MSSQLCICDHelperConfiguration {
     
     Write-Verbose 'Starting to append paths when input was w/o *.exe file.'
 
+    Write-Output "debugging SQLPackageExePath $SQLPackageExePath"
+
+    Write-Output "debugging SQLPackageExePath $MSBuildExePath"
+
     $PATHS = @{
         MSBuild = $MSBuildExePath
         SQLPackage = $SQLPackageExePath
@@ -41,8 +45,9 @@ Function Save-MSSQLCICDHelperConfiguration {
 
     # testing if either path exists
     $paths.Keys | ForEach-Object {
-        if(-not(Test-Path (Split-Path $paths[$_]) ) ) {
-            Write-Error "Directory for either MSBuild or SQlPackage was not found."
+        if(-not(Test-Path ($paths[$_]) ) ) {
+            Write-Error "Directory for either MSBuild or SQlPackage was not found. Please rerun Save-MSSQLCICDHelperConfiguration with a correct path"
+            break;
         }    
     }
     
