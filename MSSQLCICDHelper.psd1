@@ -71,7 +71,8 @@ FunctionsToExport = @(
     'Get-MSSQLCICDHelperPaths',
     'Save-MSSQLCICDHelperConfiguration',
     'Get-MSSQLCICDHelperConfiguration',
-    'Get-MSSQLCICDHelperFiletoBuildDeploy'
+    'Get-MSSQLCICDHelperFiletoBuildDeploy',
+    'Invoke-MSSQLCICDHelperMSBuild'
     #'MSSQL-CICD-Tools'
     )
 
