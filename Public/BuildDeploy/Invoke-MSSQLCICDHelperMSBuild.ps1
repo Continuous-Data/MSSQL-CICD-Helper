@@ -12,9 +12,38 @@ function Invoke-MSSQLCICDHelperMSBuild {
                Position=0)]
         [Alias("Parameters","Params","P")]
         [ValidateNotNullOrEmpty()]
-        $MSBuildArguments
+        [String] $MSBuildArguments,
+
+        [Parameter(Mandatory=$false,
+               HelpMessage='Switch to only retrieve the outcome of MSBuild. Hides the MSBuildProces',
+               Position=0)]
+        #[Alias("Parameters","Params","P")]
+        [ValidateNotNullOrEmpty()]
+        [switch] $hidden,
+
+        [Parameter(Mandatory=$false,
+               HelpMessage='Switch to use the Invoke-MSBuild Module instead of built-in process.',
+               Position=0)]
+        #[Alias("Parameters","Params","P")]
+        [ValidateNotNullOrEmpty()]
+        [switch] $UseInvokeMSBuildModule,
+
+        [Parameter(Mandatory=$false,
+               HelpMessage='Provide the optional parameters for Invoke-MSBuild ($path will be provided from this script based on $filename)',
+               Position=0)]
+        #[Alias("Parameters","Params","P")]
+        [ValidateNotNullOrEmpty()]
+        [String] $InvokeMSBuildParameters
     )
 
+    if($UseInvokeMSBuildModule){
+        if(-not(Get-Module Invoke-MSBuild)){
+            Write-Error 'Invoke-MSBuild was not found on this system. Make sure it is installed with Install-Module Invoke-MSBuild'
+            break;
+        }
+        
+    }
+    $result = @{}
     $configfile = ImportConfig 
 
     if($null -eq $filename){
@@ -33,11 +62,21 @@ function Invoke-MSSQLCICDHelperMSBuild {
     $configfile['MSBuildExe']
 
     Write-Verbose "Constructing Command to build..."
+    if(-not($UseInvokeMSBuildModule)){
 
-    $CommandtoExecute = "/k "" ""$($configfile['MSBuildExe'])"" ""$($filename.FullName)"" "
+        $CommandtoExecute = "/k "" ""$($configfile['MSBuildExe'])"" ""$($filename.FullName)"" & Exit"" " 
 
-    Write-Verbose "Command to be Executed is: cmd.exe $commandtoexecute"
-
-    Start-Process cmd.exe -ArgumentList $CommandtoExecute -NoNewWindow -PassThru
+        Write-Verbose "Command to be Executed is: cmd.exe $commandtoexecute"
+        if($hidden){
+            $result = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -WindowStyle Hidden -PassThru
+        }else{
+            $result = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru
+        }
+    }else{
+        $result = Invoke-MSBuild -Path $filename -MsBuildParameters $MSBuildArguments
+    }
+    
+    Write-verbose "result exit code was: $($result.ExitCode)"
+    $result.ExitCode
 }
 
