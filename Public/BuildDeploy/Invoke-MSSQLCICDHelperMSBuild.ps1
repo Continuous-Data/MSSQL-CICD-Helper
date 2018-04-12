@@ -73,10 +73,10 @@ function Invoke-MSSQLCICDHelperMSBuild {
             $result = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru
         }
     }else{
-        $result = Invoke-MSBuild -Path $filename -MsBuildParameters $MSBuildArguments
+        $result = Invoke-MSBuild -Path $($filename.FullName) -ShowBuildOutputInCurrentWindow
     }
     
     Write-verbose "result exit code was: $($result.ExitCode)"
-    $result.ExitCode
+    $result
 }
 
