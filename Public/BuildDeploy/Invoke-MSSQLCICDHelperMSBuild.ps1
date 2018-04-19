@@ -7,7 +7,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
         
         [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
         $filename,
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
                HelpMessage='Provides Build Arguments. Example /target:clean;build',
                Position=0)]
         [Alias("Parameters","Params","P")]
@@ -64,7 +64,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
     Write-Verbose "Constructing Command to build..."
     if(-not($UseInvokeMSBuildModule)){
 
-        $CommandtoExecute = "/k "" ""$($configfile['MSBuildExe'])"" ""$($filename.FullName)"" & Exit"" " 
+        $CommandtoExecute = "/k "" ""$($configfile['MSBuildExe'])"" ""$($filename.FullName)"" $($MSBuildArguments) & Exit"" " 
 
         Write-Verbose "Command to be Executed is: cmd.exe $commandtoexecute"
         if($hidden){
@@ -73,7 +73,14 @@ function Invoke-MSSQLCICDHelperMSBuild {
             $result = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru
         }
     }else{
-        $result = Invoke-MSBuild -Path $($filename.FullName) -ShowBuildOutputInCurrentWindow
+        if ($InvokeMSBuildParameters){
+            $command = "Invoke-MSBuild -Path $($filename.FullName) -ShowBuildOutputInCurrentWindow $($InvokeMSBuildParameters)"
+            $command
+            $result = $command
+        }else{
+            $result = Invoke-MSBuild -Path $($filename.FullName) -ShowBuildOutputInCurrentWindow 
+        }
+        
     }
     
     Write-verbose "result exit code was: $($result.ExitCode)"
