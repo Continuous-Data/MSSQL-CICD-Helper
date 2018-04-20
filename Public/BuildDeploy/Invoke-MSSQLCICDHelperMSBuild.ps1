@@ -74,16 +74,17 @@ function Invoke-MSSQLCICDHelperMSBuild {
         }
     }else{
         if ($InvokeMSBuildParameters){
-            $command = "Invoke-MSBuild -Path $($filename.FullName) -ShowBuildOutputInCurrentWindow $($InvokeMSBuildParameters)"
+            $command = "Invoke-MSBuild -Path $($filename.FullName) $($InvokeMSBuildParameters)"
             $command
-            $result = $command
+            $result = Invoke-Expression $command
         }else{
-            $result = Invoke-MSBuild -Path $($filename.FullName) -ShowBuildOutputInCurrentWindow 
+            $result = Invoke-MSBuild -Path $($filename.FullName)
         }
         
     }
     
     Write-verbose "result exit code was: $($result.ExitCode)"
-    $result
+    #$result
+    $result.BuildSucceeded
 }
 
