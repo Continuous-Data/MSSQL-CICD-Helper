@@ -87,8 +87,11 @@ function Invoke-MSSQLCICDHelperMSBuild {
         Write-Verbose "Constructing Command to build..."
         if(-not($UseInvokeMSBuildModule)){
 
-            $CommandtoExecute = "/k "" ""$($configfile['MSBuildExe'])"" ""$($filename.FullName)"" /fl /flp:logfile=""$($logfile)"" $($MSBuildArguments) & Exit"" " 
-
+            $CommandtoExecute = "/k "" ""$($configfile['MSBuildExe'])"" ""$($filename.FullName)"" /fl /flp:logfile=""$($logfile)"""
+            if ($MSBuildArguments){
+                $CommandtoExecute += " $($MSBuildArguments)"
+            } 
+            $CommandtoExecute += " & Exit"" " 
             Write-Verbose "Command to be Executed is: cmd.exe $commandtoexecute"
             $result.CommandUsedToBuild = "Command to be Executed is: cmd.exe $commandtoexecute"
 
@@ -98,15 +101,16 @@ function Invoke-MSSQLCICDHelperMSBuild {
                 $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru
             }
         }else{
-            if ($InvokeMSBuildParameters){
-                $CommandtoExecute = "Invoke-MSBuild -Path $($filename.FullName) -logdirectory $($logbase) $($InvokeMSBuildParameters)"
-            }else{
-                $CommandtoExecute = "Invoke-MSBuild -Path $($filename.FullName) -logdirectory $($logbase)"
-            }
-
+            $CommandtoExecute = "Invoke-MSBuild -Path $($filename.FullName) -logdirectory $($logbase)"
+            
             if($keeplogfiles){
                 $CommandtoExecute += " -KeepBuildLogOnSuccessfulBuilds"
             }
+
+            if ($InvokeMSBuildParameters){
+                $CommandtoExecute += " $($InvokeMSBuildParameters)"
+            }
+
             $result.CommandUsedToBuild = "Command to be Executed is: $commandtoexecute"
             $result.MsBuildProcess = Invoke-Expression $CommandtoExecute
         }
