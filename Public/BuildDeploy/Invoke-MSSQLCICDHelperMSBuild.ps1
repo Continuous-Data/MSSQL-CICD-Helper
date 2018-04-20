@@ -7,82 +7,31 @@ function Invoke-MSSQLCICDHelperMSBuild {
 	Executes the MsBuild.exe tool against the specified Visual Studio solution or project file.
 	Returns a hash table with properties for determining if the build succeeded or not, as well as other information (see the OUTPUTS section for list of properties).
 
-	.PARAMETER Path
-	The path of the Visual Studio solution or project to build (e.g. a .sln or .csproj file).
+	.PARAMETER filename
+    The path of the Visual Studio solution or project to build (e.g. a .sln or .csproj file). 
+    If left empty the Module will search Recursively for the nearest Solution file where the basepath will the path where the script is Ran (not to be confused with script location)
 
-	.PARAMETER MsBuildParameters
+	.PARAMETER MSBuildArguments
 	Additional parameters to pass to the MsBuild command-line tool. This can be any valid MsBuild command-line parameters except for the path of
 	the solution/project to build.
 
 	See http://msdn.microsoft.com/en-ca/library/vstudio/ms164311.aspx for valid MsBuild command-line parameters.
 
-	.PARAMETER Use32BitMsBuild
-	If this switch is provided, the 32-bit version of MsBuild.exe will be used instead of the 64-bit version when both are available.
+    .PARAMETER hidden
+    Switch to use when output from the MSBuild command line tool needs to be hidden instead of shown. 
+    When using the Invoke-MSBuild feature you need to explicitly tell it to show info with "-ShowBuildOutputInCurrentWindow" or something similar given to Parameter -InvokeMSBuildParameters
 
-	.PARAMETER BuildLogDirectoryPath
-	The directory path to write the build log files to.
-	Defaults to putting the log files in the users temp directory (e.g. C:\Users\[User Name]\AppData\Local\Temp).
-	Use the keyword "PathDirectory" to put the log files in the same directory as the .sln or project file being built.
-	Two log files are generated: one with the complete build log, and one that contains only errors from the build.
 
-	.PARAMETER LogVerbosity
-	If set, this will set the verbosity of the build log. Possible values are: q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
+    .PARAMETER keeplogfiles
+    Switch to specify that log files should be deleted. only applies on successfull builds.
 
-	.PARAMETER AutoLaunchBuildLogOnFailure
-	If set, this switch will cause the build log to automatically be launched into the default viewer if the build fails.
-	This log file contains all of the build output.
-	NOTE: This switch cannot be used with the PassThru switch.
 
-	.PARAMETER AutoLaunchBuildErrorsLogOnFailure
-	If set, this switch will cause the build errors log to automatically be launched into the default viewer if the build fails.
-	This log file only contains errors from the build output.
-	NOTE: This switch cannot be used with the PassThru switch.
+    .PARAMETER UseInvokeMSBuildModule
+    Instead of using the MSBuildfeatures from MSSQL-CICD-Helper the more advanced Invoke-MSBuild can be called.
 
-	.PARAMETER KeepBuildLogOnSuccessfulBuilds
-	If set, this switch will cause the MsBuild log file to not be deleted on successful builds; normally it is only kept around on failed builds.
-	NOTE: This switch cannot be used with the PassThru switch.
-
-	.PARAMETER ShowBuildOutputInNewWindow
-	If set, this switch will cause a command prompt window to be shown in order to view the progress of the build.
-	By default the build output is not shown in any window.
-	NOTE: This switch cannot be used with the ShowBuildOutputInCurrentWindow switch.
-
-	.PARAMETER ShowBuildOutputInCurrentWindow
-	If set, this switch will cause the build process to be started in the existing console window, instead of creating a new one.
-	By default the build output is not shown in any window.
-	NOTE: This switch will override the ShowBuildOutputInNewWindow switch.
-	NOTE: There is a problem with the -NoNewWindow parameter of the Start-Process cmdlet; this is used for the ShowBuildOutputInCurrentWindow switch.
-		  The bug is that in some PowerShell consoles, the build output is not directed back to the console calling this function, so nothing is displayed.
-		  To avoid the build process from appearing to hang, PromptForInputBeforeClosing only has an effect with ShowBuildOutputInCurrentWindow when running
-		  in the default "ConsoleHost" PowerShell console window, as we know it works properly with that console (it does not in other consoles like ISE, PowerGUI, etc.).
-
-	.PARAMETER PromptForInputBeforeClosing
-	If set, this switch will prompt the user for input after the build completes, and will not continue until the user presses a key.
-	NOTE: This switch only has an effect when used with the ShowBuildOutputInNewWindow and ShowBuildOutputInCurrentWindow switches (otherwise build output is not displayed).
-	NOTE: This switch cannot be used with the PassThru switch.
-	NOTE: The user will need to provide input before execution will return back to the calling script (so do not use this switch for automated builds).
-	NOTE: To avoid the build process from appearing to hang, PromptForInputBeforeClosing only has an effect with ShowBuildOutputInCurrentWindow when running
-		  in the default "ConsoleHost" PowerShell console window, as we know it works properly with that console (it does not in other consoles like ISE, PowerGUI, etc.).
-
-	.PARAMETER MsBuildFilePath
-	By default this script will locate and use the latest version of MsBuild.exe on the machine.
-	If you have MsBuild.exe in a non-standard location, or want to force the use of an older MsBuild.exe version, you may pass in the file path of the MsBuild.exe to use.
-
-	.PARAMETER VisualStudioDeveloperCommandPromptFilePath
-	By default this script will locate and use the latest version of the Visual Studio Developer Command Prompt to run MsBuild.
-	If you installed Visual Studio in a non-standard location, or want to force the use of an older Visual Studio Command Prompt version, you may pass in the file path to
-	the Visual Studio Command Prompt to use. The filename is typically VsDevCmd.bat.
-
-	.PARAMETER BypassVisualStudioDeveloperCommandPrompt
-	By default this script will locate and use the latest version of the Visual Studio Developer Command Prompt to run MsBuild.
-	The Visual Studio Developer Command Prompt loads additional variables and paths, so it is sometimes able to build project types that MsBuild cannot build by itself alone.
-	However, loading those additional variables and paths sometimes may have a performance impact, so this switch may be provided to bypass it and just use MsBuild directly.
-
-	
-
-	.PARAMETER WhatIf
-	If set, the build will not actually be performed.
-	Instead it will just return the result hash table containing the file paths that would be created if the build is performed with the same parameters.
+    .PARAMETER InvokeMSBuildParameters
+    This Parameter is used as a string to pass additional parameters to the Invoke-MSBuild function.
+    Default we pass -Path, -LogDirectory and -KeepBuildLogOnSuccessfulBuilds so keep away from those.
 
 	.OUTPUTS
 	a hashtable with the following details is returned (whether or not using Invoke-MSBuild as the executor):
@@ -96,24 +45,74 @@ function Invoke-MSSQLCICDHelperMSBuild {
 	MsBuildProcess = The process that was used to execute MsBuild.exe.
 	BuildDuration = The amount of time the build took to complete, represented as a TimeSpan.
 
-	.EXAMPLE
-	$buildResult = Invoke-MsBuild -Path "C:\Some Folder\MySolution.sln"
+    .EXAMPLE
+    
+    Invoke-MSSQLCICDHelperMSBuild
+    
+    Will Run Invoke-MSSQLCICDHelperMSBuild with the default settings
+    Filename = Autodetect
+    Non hidden
+    Delete logfiles when successfull.
+    
+    .EXAMPLE
+    
+    Invoke-MSSQLCICDHelperMSBuild -Verbose
+    
+    Will Run Invoke-MSSQLCICDHelperMSBuild with the default settings but show verbose output. (this goes for other CMDLetbindings aswell)
+    Filename = Autodetect
+    Non hidden
+    Delete logfiles when successfull.
 
-	if ($buildResult.BuildSucceeded -eq $true)
-	{
-		Write-Output ("Build completed successfully in {0:N1} seconds." -f $buildResult.BuildDuration.TotalSeconds)
-	}
-	elseif ($buildResult.BuildSucceeded -eq $false)
-	{
-		Write-Output ("Build failed after {0:N1} seconds. Check the build log file '$($buildResult.BuildLogFilePath)' for errors." -f $buildResult.BuildDuration.TotalSeconds)
-	}
-	elseif ($buildResult.BuildSucceeded -eq $null)
-	{
-		Write-Output "Unsure if build passed or failed: $($buildResult.Message)"
-	}
+    .EXAMPLE
+    
+    Invoke-MSSQLCICDHelperMSBuild -filename <path to file to build>
+    
+    Will Run Invoke-MSSQLCICDHelperMSBuild with the default settings other than filename
+    Filename = given file
+    Non hidden
+    Delete logfiles when successfull.
 
-	Perform the default MsBuild actions on the Visual Studio solution to build the projects in it, and returns a hash table containing the results.
-	The PowerShell script will halt execution until MsBuild completes.
+    .EXAMPLE
+    
+    Invoke-MSSQLCICDHelperMSBuild -KeepLogfiles -hidden
+    
+    Will Run Invoke-MSSQLCICDHelperMSBuild with not showing ouput and keeping logfiles when done.
+    Filename = Autodetect
+    hidden
+    Don't Delete logfiles when successfull.
+
+    .EXAMPLE
+    
+    Invoke-MSSQLCICDHelperMSBuild -MSBuildArguments "t:build"
+    
+    Will Run Invoke-MSSQLCICDHelperMSBuild with additional msbuild parameters. 
+    See http://msdn.microsoft.com/en-ca/library/vstudio/ms164311.aspx for valid MsBuild command-line parameters.
+
+    Filename = Autodetect
+    Non hidden
+    Delete logfiles when successfull.
+
+    .EXAMPLE
+    
+    Invoke-MSSQLCICDHelperMSBuild -UseInvokeMSBuildModule
+    
+    Will Run Invoke-MSBuild with the default settings. The Following parameters will automatically be supplied to Invoke-MSBuild: -Path $filename (or auto-detect), -LogDirectory Parent of $filename and -KeepBuildLogOnSuccessfulBuilds because we want to have files to check.
+    Filename = Auto-Detect
+    Hidden by default
+    Delete logfiles when successfull.
+
+    .EXAMPLE
+    
+    Invoke-MSSQLCICDHelperMSBuild -UseInvokeMSBuildModule -InvokeMSBuildParameters <params to pass in valid powershell formatting -paramname value>
+    
+    Will Run Invoke-MSBuild with the additional settings specified. keep away from below settings because we automatically feed them to the function and can't be specified twice
+    The Following parameters will automatically be supplied to Invoke-MSBuild: -Path $filename (or auto-detect), -LogDirectory Parent of $filename and -KeepBuildLogOnSuccessfulBuilds because we want to have files to check.
+
+    See https://github.com/deadlydog/Invoke-MsBuild for valid optional Parameters.
+
+    Filename = Auto-Detect
+    Hidden by default
+    Delete logfiles when successfull.
 
     .LINK
 	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools
@@ -276,6 +275,15 @@ function Invoke-MSSQLCICDHelperMSBuild {
     if ($buildSucceeded -eq $true){
         $result.BuildSucceeded = $true
         $result.Message = "Build Passed Successfully"
+
+        if (!$keeplogfiles)
+			{
+                if (Test-Path $($result.BuildLogFile) -PathType Leaf) { Remove-Item -Path $($result.BuildLogFile) -Force }
+                
+                $result.BuildLogFile = $null
+			}
+
+
     }else{
         $result.BuildSucceeded = $false
         $result.Message = "Building ""$($result.FiletoBuild)"" Failed! Please check ""$($result.BuildLogFile)"" "
@@ -286,12 +294,6 @@ function Invoke-MSSQLCICDHelperMSBuild {
 
     Write-Verbose "MSBuild passed. See results below..."
     $result
-
-    ####TODO####
-    if(-not($keeplogfiles)){
-        # delete files after running unless switch
-    }
-    
 
 }
 
