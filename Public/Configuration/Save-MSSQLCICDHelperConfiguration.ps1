@@ -1,4 +1,43 @@
 Function Save-MSSQLCICDHelperConfiguration {
+    <#
+	.SYNOPSIS
+	Saves the paths to MSBuild and SQLPackage executables for lates usage.
+
+	.DESCRIPTION
+    Stores the paths for both SQLPackage.Exe and MSBuild.Exe for later use. Both paths are mandatory to store.
+    The function tests both paths given for existance and stores it in a XML file on APPDATA for windows or Home on Linux.
+
+
+    .PARAMETER SQLPackageExePath
+    Determines the kind of file to find. Accepts MSBuild, SQLPackage or Both as inputs
+    Mandatory
+
+    .PARAMETER MSBuildExePath
+    Specifies the path where the function needs to start looking for the $typetofind
+    Mandatory
+
+	.OUTPUTS
+	None
+    
+    .EXAMPLE
+    Get-MSSQLCICDHelperPaths -SQLPackageExePath c:\SQLPackage.Exe
+    
+    Will Store c:\SQLPackage.Exe as the configured path for SQLPackage
+
+    .EXAMPLE
+    
+    Get-MSSQLCICDHelperPaths -MSBuildExePath c:\MSBuild.Exe
+    
+    Will Store c:\SQLPackage.Exe as the configured path for SQLPackage
+    
+    .LINK
+	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools
+
+	.NOTES
+	Name:   MSSQLCICDHelper
+	Author: Tobi Steenbakkers
+	Version: 1.0.0
+#>
 [cmdletbinding()]
     param(
     [Parameter(Mandatory=$true,

@@ -27,7 +27,7 @@ Author = 'Tobi Steenbakkers'
 Copyright = '(c) 2018 MSSQL-CICD-Helper. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Set of Powershell functions to aid in CI/CD processes to build with MSBuild and deploying various *pac files used in MSSQL Database deployment'
+Description = 'Set of Powershell functions to aid in CI/CD processes to build with MSBuild and deploying various *pac files used in MSSQL Database and SSIS deployment'
 
 # Minimum version of the Windows PowerShell engine required by this module
 #PowerShellVersion = '3'
