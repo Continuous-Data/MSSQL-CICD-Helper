@@ -1,5 +1,4 @@
 function Get-MSSQLCICDHelperConfiguration  {
-
 <#
 	.SYNOPSIS
 	Retrieves the Stored configuration file.

@@ -1,5 +1,5 @@
 function Invoke-MSSQLCICDHelperMSBuild {
-    <#
+<#
 	.SYNOPSIS
 	Builds the given Visual Studio solution or project file using MsBuild.
 

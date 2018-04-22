@@ -7,8 +7,7 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
     Searches the system recursively for the given rootpath for the given type to find.
     The function returns a full filename of the chosen type for aid in building and deploying in CICD Scenario's.
     If multiple of the same type are found it will return an error since only one can be built at once.
-    For solutions with multiple projects specify the solution instead of the project.
-
+    For building solutions with multiple projects specify the solution instead of the project
 
     .PARAMETER typetofind
     Determines the kind of file to find. Accepts Solution, Project, Dacpac, DTSPac
@@ -22,10 +21,9 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
 	A filename (full path) to the file the function is supposed to find based on its rootpath and type to find. 
 
     .EXAMPLE
+    Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath C:\
     
-    Get-MSSQLCICDHelperPaths -typetofind Solution -rootpath C:\
-    
-    Will Search C:\ for MSBuild.exe
+    Will Search C:\ for *sln files
     
     .LINK
 	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools

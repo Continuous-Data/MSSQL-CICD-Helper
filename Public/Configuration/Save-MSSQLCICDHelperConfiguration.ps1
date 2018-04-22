@@ -1,5 +1,5 @@
 Function Save-MSSQLCICDHelperConfiguration {
-    <#
+<#
 	.SYNOPSIS
 	Saves the paths to MSBuild and SQLPackage executables for lates usage.
 
@@ -20,13 +20,13 @@ Function Save-MSSQLCICDHelperConfiguration {
 	None
     
     .EXAMPLE
-    Get-MSSQLCICDHelperPaths -SQLPackageExePath c:\SQLPackage.Exe
+    Save-MSSQLCICDHelperConfiguration -SQLPackageExePath c:\SQLPackage.Exe
     
     Will Store c:\SQLPackage.Exe as the configured path for SQLPackage
 
     .EXAMPLE
     
-    Get-MSSQLCICDHelperPaths -MSBuildExePath c:\MSBuild.Exe
+    Save-MSSQLCICDHelperConfiguration -MSBuildExePath c:\MSBuild.Exe
     
     Will Store c:\SQLPackage.Exe as the configured path for SQLPackage
     
