@@ -193,13 +193,13 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             if($null -eq $filename){
                 $curdir = Get-location
                 write-verbose "No filename given. Running Get-MSSQLCICDHelperFiletoBuildDeploy based to find the Solution in current script path $curdir"
-                $filename = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'Solution' -RootPath $curdir
+                $filename = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'dacpac' -RootPath $curdir | Get-ChildItem
             }
             else{
                 $filename = Get-ChildItem $filename
             }
-            
-            Write-Verbose "The following file will be built: $($filename.Name) located in path $($filename.DirectoryName)"
+            $filename 
+            #Write-Verbose "The following file will be built: $($filename.Name) located in path $($filename.DirectoryName)"
             
             $logfile = "$($filename.FullName).msbuild.log"
             $logbase = Split-Path -path $logfile -Parent
@@ -208,12 +208,12 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             $result.FiletoBuild = $filename.FullName 
             
             Write-Verbose "The following build arguments will be used: $MSBuildArguments"
-            $configfile['MSBuildExe']
+            $configfile['SQLPackageExe']
     
             Write-Verbose "Constructing Command to build..."
             if(-not($UseInvokeMSBuildModule)){
     
-                $CommandtoExecute = "/k "" ""$($configfile['MSBuildExe'])"" ""$($filename.FullName)"" /fl /flp:logfile=""$($logfile)"""
+                $CommandtoExecute = "/k "" ""$($configfile['SQLPackageExe'])"" " 
                 if ($MSBuildArguments){
                     $CommandtoExecute += " $($MSBuildArguments)"
                 } 
@@ -223,10 +223,10 @@ function Invoke-MSSQLCICDHelperSQLPackage {
     
                 if($hidden){
                     Write-verbose "Starting MSBuild ..."
-                    $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -WindowStyle Hidden -PassThru
+                    $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -WindowStyle Hidden -PassThru | Tee-Object -FilePath 'test.log'
                 }else{
                     Write-verbose "Starting MSBuild ..."
-                    $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru
+                    $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru | Tee-Object -FilePath 'test.log'
                 }
             }else{
                 $CommandtoExecute = "Invoke-MSBuild -Path $($filename.FullName) -logdirectory $($logbase)"
@@ -253,14 +253,14 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         Write-verbose "MSBuild Started. Continue Checking results..."
      
     
-        if(!(Test-Path -Path $result.BuildLogFile)){
-            $Result.BuildSucceeded = $false
-            $result.Message = "Could not find file at '$($result.BuildLogFile)' unable to check for correct build."
+        # if(!(Test-Path -Path $result.BuildLogFile)){
+        #     $Result.BuildSucceeded = $false
+        #     $result.Message = "Could not find file at '$($result.BuildLogFile)' unable to check for correct build."
     
-            Write-Error "$($result.message)"
-            return $result
-            break;
-        }
+        #     Write-Error "$($result.message)"
+        #     return $result
+        #     break;
+        # }
     
         if($UseInvokeMSBuildModule){
             [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0
