@@ -193,7 +193,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
         if($null -eq $filename){
             $curdir = Get-location
             write-verbose "No filename given. Running Get-MSSQLCICDHelperFiletoBuildDeploy based to find the Solution in current script path $curdir"
-            $filename = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'Solution' -RootPath $curdir
+            $filename = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'Solution' -RootPath $curdir | Get-ChildItem
         }
         else{
             $filename = Get-ChildItem $filename
