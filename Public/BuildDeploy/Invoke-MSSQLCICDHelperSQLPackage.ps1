@@ -131,13 +131,62 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             
             [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
             $filename,
+
             [Parameter(Mandatory=$false,
                    HelpMessage='Provides Build Arguments. Example /target:clean;build',
                    Position=0)]
             [Alias("Parameters","Params","P")]
             [ValidateNotNullOrEmpty()]
-            [String] $MSBuildArguments,
-    
+            [String] $AdditionalArguments,
+
+            [Parameter(Mandatory=$false,
+                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   Position=0)]
+            [Alias("lfp")]
+            [ValidateNotNullOrEmpty()]
+            [String] $logfilepath,
+            
+            [Parameter(Mandatory=$false,
+                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   Position=0)]
+            [Alias("tconstr")]
+            [ValidateNotNullOrEmpty()]
+            [String] $TargetConnectionString,
+
+            
+            [Parameter(Mandatory=$false,
+                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   Position=0)]
+            [Alias("tsn", "TargetServer")]
+            [ValidateNotNullOrEmpty()]
+            [String] $TargetServerName,
+
+            
+            
+            [Parameter(Mandatory=$false,
+                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   Position=0)]
+            [Alias("tdn","TargetDB")]
+            [ValidateNotNullOrEmpty()]
+            [String] $TargetDBName,
+            
+            
+            
+            [Parameter(Mandatory=$false,
+                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   Position=0)]
+            [Alias("tu", "TargetUser")]
+            [ValidateNotNullOrEmpty()]
+            [String] $TargetUserName,
+            
+            
+            [Parameter(Mandatory=$false,
+                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   Position=0)]
+            [Alias("tp", "TargetPass")]
+            [ValidateNotNullOrEmpty()]
+            [String] $TargetPassWord,
+
             [Parameter(Mandatory=$false,
                    HelpMessage='Switch to only retrieve the outcome of MSBuild. Hides the MSBuildProces on screen. When using Invoke-MSBuild the default setting for invoking the function will be hidden.',
                    Position=0)]
@@ -150,21 +199,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             Position=0)]
             #[Alias("Parameters","Params","P")]
             [ValidateNotNullOrEmpty()]
-            [switch] $keeplogfiles,
-    
-            [Parameter(Mandatory=$false,
-                   HelpMessage='Switch to use the Invoke-MSBuild Module instead of built-in process.',
-                   Position=0)]
-            #[Alias("Parameters","Params","P")]
-            [ValidateNotNullOrEmpty()]
-            [switch] $UseInvokeMSBuildModule,
-    
-            [Parameter(Mandatory=$false,
-                   HelpMessage='Provide the optional parameters for Invoke-MSBuild ($path will be provided from this script based on $filename)',
-                   Position=0)]
-            #[Alias("Parameters","Params","P")]
-            [ValidateNotNullOrEmpty()]
-            [String] $InvokeMSBuildParameters
+            [switch] $keeplogfiles 
         )
         
         $result = @{}
@@ -179,19 +214,12 @@ function Invoke-MSSQLCICDHelperSQLPackage {
     
         try{
     
-        
-            if($UseInvokeMSBuildModule){
-                if(-not(Get-Module Invoke-MSBuild)){
-                    Write-Error 'Invoke-MSBuild was not found on this system. Make sure it is installed with Install-Module Invoke-MSBuild'
-                    break;
-                }
-                
-            }
     
             $configfile = ImportConfig 
-    
+            $curdir = Get-location
+            
             if($null -eq $filename){
-                $curdir = Get-location
+                
                 write-verbose "No filename given. Running Get-MSSQLCICDHelperFiletoBuildDeploy based to find the Solution in current script path $curdir"
                 $filename = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'dacpac' -RootPath $curdir | Get-ChildItem
             }
@@ -201,46 +229,65 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             $filename 
             #Write-Verbose "The following file will be built: $($filename.Name) located in path $($filename.DirectoryName)"
             
-            $logfile = "$($filename.FullName).msbuild.log"
+            
+            if($logfilepath){
+                $logfile = "$($logfilepath)"
+            }else{
+                $logfile = "{0}\$($filename.name).SQLPackage.log" -f $curdir
+            }
+            $errorlogfile = "{0}\$($filename.name).SQLPackage.errors.log" -f $curdir
             $logbase = Split-Path -path $logfile -Parent
             $result.BuildLogFilePath = $logbase
             $result.BuildLogFile = $logfile
             $result.FiletoBuild = $filename.FullName 
+
             
             Write-Verbose "The following build arguments will be used: $MSBuildArguments"
-            $configfile['SQLPackageExe']
-    
-            Write-Verbose "Constructing Command to build..."
-            if(-not($UseInvokeMSBuildModule)){
-    
-                $CommandtoExecute = "/k "" ""$($configfile['SQLPackageExe'])"" " 
-                if ($MSBuildArguments){
-                    $CommandtoExecute += " $($MSBuildArguments)"
-                } 
-                $CommandtoExecute += " & Exit"" " 
-                #Write-Verbose "Command to be Executed is: cmd.exe $commandtoexecute"
-                $result.CommandUsedToBuild = "Command to be Executed is: cmd.exe $commandtoexecute"
-    
-                if($hidden){
-                    Write-verbose "Starting MSBuild ..."
-                    $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -WindowStyle Hidden -PassThru | Tee-Object -FilePath 'test.log'
-                }else{
-                    Write-verbose "Starting MSBuild ..."
-                    $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru | Tee-Object -FilePath 'test.log'
-                }
-            }else{
-                $CommandtoExecute = "Invoke-MSBuild -Path $($filename.FullName) -logdirectory $($logbase)"
                 
-                $CommandtoExecute += " -KeepBuildLogOnSuccessfulBuilds"
-    
-                if ($InvokeMSBuildParameters){
-                    $CommandtoExecute += " $($InvokeMSBuildParameters)"
+            Write-Verbose "Constructing Command to build..."
+
+            $arguments = "/k "" ""$($configfile['SQLPackageExe'])"""
+
+            $arguments += " /a:Publish"
+            $arguments += " /sf:""$($filename)"""
+
+            if($TargetConnectionString){
+
+            }else{
+                if($TargetServerName -and $TargetDBName -and $TargetUserName -and $TargetPassWord){
+                    $arguments += " /tsn:$($targetservername) /tdn:$($TargetDBName) /tu:$($targetUsername) /tp:$($targetPassword)"
+
+                }else{
+                    #Write-Error "Some of the target Credentials are not filled"
+                    #break;
                 }
-    
-                $result.CommandUsedToBuild = "Command to be Executed is: $commandtoexecute"
-                Write-verbose "Starting MSBuild ..."
-                $result.MsBuildProcess = Invoke-Expression $CommandtoExecute
             }
+            
+            #closing arguments with an exit statement to return to powershell
+            $arguments += " & Exit"" " 
+            Write-Verbose "The following Arguments will be used: $arguments"
+            #constructing the process and the arguments to send:
+            $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+            $pinfo.FileName = "cmd.exe"
+            $pinfo.Arguments = $arguments
+            #$pinfo.Passthru = $true
+            $pinfo.RedirectStandardError = $true
+            $pinfo.RedirectStandardOutput = $true
+            $pinfo.UseShellExecute = $false
+
+            $pinfo
+
+            #executing the command and storing the result inside $p:
+            $p = New-Object System.Diagnostics.Process
+            $p.StartInfo = $pinfo
+            $p.Start() | Out-Null
+
+            $output = $p.StandardOutput.ReadToEnd()
+            $erroroutput =  $p.StandardError.read()
+            $output | Out-file -literalpath $logfile -Force
+            $erroroutput | Out-file -literalpath $errorlogfile -Force
+
+
         }catch{
             $errorMessage = $_
             $result.Message = "Unexpected error occurred while building ""$Path"": $errorMessage"
@@ -253,14 +300,14 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         Write-verbose "MSBuild Started. Continue Checking results..."
      
     
-        # if(!(Test-Path -Path $result.BuildLogFile)){
-        #     $Result.BuildSucceeded = $false
-        #     $result.Message = "Could not find file at '$($result.BuildLogFile)' unable to check for correct build."
+        if(!(Test-Path -Path $result.BuildLogFile)){
+            $Result.BuildSucceeded = $false
+            $result.Message = "Could not find file at '$($result.BuildLogFile)' unable to check for correct build."
     
-        #     Write-Error "$($result.message)"
-        #     return $result
-        #     break;
-        # }
+            Write-Error "$($result.message)"
+            return $result
+            break;
+        }
     
         if($UseInvokeMSBuildModule){
             [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0
@@ -269,9 +316,10 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         }
         
         [bool] $buildOutputDoesNotContainFailureMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Build FAILED." -SimpleMatch) -eq $null
+        [bool] $buildOutputDoesNotContainSuccesseMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Build FAILED." -SimpleMatch) -eq $null
         
-        $buildSucceeded = $buildOutputDoesNotContainFailureMessage -and $buildReturnedSuccessfulExitCode
-    
+        $buildSucceeded = $true #$buildOutputDoesNotContainFailureMessage -and $buildReturnedSuccessfulExitCode
+        
         if ($buildSucceeded -eq $true){
             $result.BuildSucceeded = $true
             $result.Message = "Build Passed Successfully"
@@ -293,8 +341,14 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         }
     
         Write-Verbose "MSBuild passed. See results below..."
+        #$result
+        $output
         $result
-    
+        $logfile
+        $p.ExitCode
+        $erroroutput
+
+        Start-Process cmd.exe -ArgumentList $arguments -NoNewWindow -PassThru
     }
     
     
