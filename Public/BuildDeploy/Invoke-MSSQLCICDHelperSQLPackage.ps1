@@ -37,13 +37,13 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         a hashtable with the following details is returned (whether or not using Invoke-MSBuild as the executor):
     
         BuildSucceeded = $true if the build passed, $false if the build failed, and $null if we are not sure.
-        BuildLogFilePath = The path to the build's log file.
+        LogFilePath = The path to the build's log file.
         BuildErrorsLogFilePath = The path to the build's error log file.
         FiletoBuild = The item that MsBuild ran against.
         CommandUsedToBuild = The full command that was used to invoke MsBuild. This can be useful for inspecting what parameters are passed to MsBuild.exe.
         Message = A message describing any problems that were encoutered by Invoke-MsBuild. This is typically an empty string unless something went wrong.
         MsBuildProcess = The process that was used to execute MsBuild.exe.
-        BuildDuration = The amount of time the build took to complete, represented as a TimeSpan.
+        Duration = The amount of time the build took to complete, represented as a TimeSpan.
     
         .EXAMPLE
         
@@ -207,11 +207,15 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         $result.MsBuildProcess = $null
         $result.BuildSucceeded = $null
         $result.Message = [string]::Empty
-        $result.BuildDuration = [TimeSpan]::Zero
-        $result.BuildLogFilePath = $null
-        $result.BuildLogFile = $null
+        $result.Duration = [TimeSpan]::Zero
+        $result.LogFilePath = $null
+        $result.LogFile = $null
+        $result.ErrorLogFilePath = $null
+        $result.ErrorLogFile = $null
         $result.FiletoBuild = $null
     
+        $result
+
         try{
     
     
@@ -227,7 +231,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
                 $filename = Get-ChildItem $filename
             }
             $filename 
-            #Write-Verbose "The following file will be built: $($filename.Name) located in path $($filename.DirectoryName)"
+            write-Verbose "The following file will be built: $($filename.Name) located in path $($filename.DirectoryName)"
             
             
             if($logfilepath){
@@ -237,8 +241,10 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             }
             $errorlogfile = "{0}\$($filename.name).SQLPackage.errors.log" -f $curdir
             $logbase = Split-Path -path $logfile -Parent
-            $result.BuildLogFilePath = $logbase
-            $result.BuildLogFile = $logfile
+            $result.LogFilePath = $logbase
+            $result.LogFile = $logfile
+            $result.ErrorLogFilePath = $logbase
+            $result.ErrorLogFile = $errorlogfile
             $result.FiletoBuild = $filename.FullName 
 
             
@@ -274,10 +280,12 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             $arguments += " & Exit"" " 
             Write-Verbose "The following Arguments will be used: $arguments"
             $result.CommandUsedToBuild = "cmd.exe $arguments"
+            
             #constructing the process and the arguments to send:
             $pinfo = New-Object System.Diagnostics.ProcessStartInfo
             $pinfo.FileName = "cmd.exe"
             $pinfo.Arguments = $arguments
+            
             #$pinfo.Passthru = $true
             $pinfo.RedirectStandardError = $true
             $pinfo.RedirectStandardOutput = $true
@@ -293,6 +301,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
             $output = $p.StandardOutput.ReadToEnd()
             $erroroutput =  $p.StandardError.read()
+            $result.Duration = $p.ExitTime - $p.StartTime
             $output | Out-file -literalpath $logfile -Force
             $erroroutput | Out-file -literalpath $errorlogfile -Force
 
@@ -310,9 +319,9 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         
         $output
     
-        if(!(Test-Path -Path $result.BuildLogFile)){
+        if(!(Test-Path -Path $result.LogFile)){
             $Result.BuildSucceeded = $false
-            $result.Message = "Could not find file at '$($result.BuildLogFile)' unable to check for correct build."
+            $result.Message = "Could not find file at '$($result.LogFile)' unable to check for correct build."
     
             Write-Error "$($result.message)"
             return $result
@@ -321,40 +330,39 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         
         
         [bool] $buildReturnedSuccessfulExitCode = $p.ExitCode -eq 0
-        [bool] $buildOutputDoesNotContainFailureMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null
-        [bool] $buildOutputDoesNotContainSuccesseMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Successfully published database." -SimpleMatch) -eq $null
+        [bool] $buildOutputDoesNotContainFailureMessage = (Select-String -Path $($result.LogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null
+        [bool] $buildOutputDoesContainSuccesseMessage = (Select-String -Path $($result.LogFile) -Pattern "Successfully published database." -SimpleMatch -Quiet) -eq $true
         
-        $buildSucceeded = $true #$buildOutputDoesNotContainFailureMessage -and $buildReturnedSuccessfulExitCode
+        $buildSucceeded = $buildOutputDoesNotContainFailureMessage -and $buildReturnedSuccessfulExitCode -and $buildOutputDoesContainSuccesseMessage
         
         if ($buildSucceeded -eq $true){
+
             $result.BuildSucceeded = $true
             $result.Message = "Build Passed Successfully"
     
             if (!$keeplogfiles)
                 {
-                    if (Test-Path $($result.BuildLogFile) -PathType Leaf) { Remove-Item -Path $($result.BuildLogFile) -Force }
-                    
-                    $result.BuildLogFile = $null
+                    if (Test-Path $($result.LogFile) -PathType Leaf) { Remove-Item -Path $($result.LogFile) -Force }
+                    if (Test-Path $($result.ErrorLogFile) -PathType Leaf) { Remove-Item -Path $($result.ErrorLogFile) -Force }
+
+                    $result.LogFile = $null
+                    $result.ErrorLogFile = $null
                 }
     
     
         }else{
+
             $result.BuildSucceeded = $false
-            $result.Message = "Building ""$($result.FiletoBuild)"" Failed! Please check ""$($result.BuildLogFile)"" "
+            $result.Message = "Building ""$($result.FiletoBuild)"" Failed! Please check ""$($result.LogFile)"" "
             Write-Error "$($result.message)"
             return $result
             break;
+
         }
     
         Write-Verbose "MSBuild passed. See results below..."
-        return $result
-        # $output
-        # $result
-        # $logfile
-        # $p.ExitCode
-        # $erroroutput
-
-        #Start-Process cmd.exe -ArgumentList $arguments -NoNewWindow -PassThru
+        $result
+        
     }
     
     
