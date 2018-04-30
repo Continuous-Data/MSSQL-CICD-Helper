@@ -242,7 +242,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             $result.FiletoBuild = $filename.FullName 
 
             
-            Write-Verbose "The following build arguments will be used: $MSBuildArguments"
+            
                 
             Write-Verbose "Constructing Command to build..."
 
@@ -253,6 +253,8 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
             if($TargetConnectionString){
 
+                $arguments += " /tcs:$TargetConnectionString"
+
             }else{
                 if($TargetServerName -and $TargetDBName -and $TargetUserName -and $TargetPassWord){
                     $arguments += " /tsn:$($targetservername) /tdn:$($TargetDBName) /tu:$($targetUsername) /tp:$($targetPassword)"
@@ -262,10 +264,16 @@ function Invoke-MSSQLCICDHelperSQLPackage {
                     #break;
                 }
             }
+
+            if($AdditionalArguments){
+                Write-Verbose "The following additional build arguments will be used: $AdditionalArguments"
+                $arguments += " $additionalarguments"
+            }
             
             #closing arguments with an exit statement to return to powershell
             $arguments += " & Exit"" " 
             Write-Verbose "The following Arguments will be used: $arguments"
+            $result.CommandUsedToBuild = "cmd.exe $arguments"
             #constructing the process and the arguments to send:
             $pinfo = New-Object System.Diagnostics.ProcessStartInfo
             $pinfo.FileName = "cmd.exe"
@@ -275,8 +283,9 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             $pinfo.RedirectStandardOutput = $true
             $pinfo.UseShellExecute = $false
 
-            $pinfo
-
+            if($debug){
+                $pinfo
+            }
             #executing the command and storing the result inside $p:
             $p = New-Object System.Diagnostics.Process
             $p.StartInfo = $pinfo
@@ -298,7 +307,8 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         }
         
         Write-verbose "MSBuild Started. Continue Checking results..."
-     
+        
+        $output
     
         if(!(Test-Path -Path $result.BuildLogFile)){
             $Result.BuildSucceeded = $false
@@ -308,15 +318,11 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             return $result
             break;
         }
-    
-        if($UseInvokeMSBuildModule){
-            [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0
-        }else{
-            [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.ExitCode -eq 0
-        }
         
-        [bool] $buildOutputDoesNotContainFailureMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Build FAILED." -SimpleMatch) -eq $null
-        [bool] $buildOutputDoesNotContainSuccesseMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Build FAILED." -SimpleMatch) -eq $null
+        
+        [bool] $buildReturnedSuccessfulExitCode = $p.ExitCode -eq 0
+        [bool] $buildOutputDoesNotContainFailureMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null
+        [bool] $buildOutputDoesNotContainSuccesseMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Successfully published database." -SimpleMatch) -eq $null
         
         $buildSucceeded = $true #$buildOutputDoesNotContainFailureMessage -and $buildReturnedSuccessfulExitCode
         
@@ -341,14 +347,14 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         }
     
         Write-Verbose "MSBuild passed. See results below..."
-        #$result
-        $output
-        $result
-        $logfile
-        $p.ExitCode
-        $erroroutput
+        return $result
+        # $output
+        # $result
+        # $logfile
+        # $p.ExitCode
+        # $erroroutput
 
-        Start-Process cmd.exe -ArgumentList $arguments -NoNewWindow -PassThru
+        #Start-Process cmd.exe -ArgumentList $arguments -NoNewWindow -PassThru
     }
     
     
