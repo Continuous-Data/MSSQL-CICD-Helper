@@ -189,11 +189,12 @@ function Invoke-MSSQLCICDHelperMSBuild {
         }
 
         $configfile = ImportConfig 
-
+        $curdir = Get-location
+        
         if($null -eq $filename){
-            $curdir = Get-location
+            
             write-verbose "No filename given. Running Get-MSSQLCICDHelperFiletoBuildDeploy based to find the Solution in current script path $curdir"
-            $filename = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'Solution' -RootPath $curdir
+            $filename = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'Solution' -RootPath $curdir | Get-ChildItem
         }
         else{
             $filename = Get-ChildItem $filename
@@ -247,7 +248,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
         $result.BuildSucceeded = $false
         Write-Error ($result.Message)
         return $result
-        break;
+        EXIT 1;
     }
     
     Write-verbose "MSBuild Started. Continue Checking results..."
@@ -259,13 +260,15 @@ function Invoke-MSSQLCICDHelperMSBuild {
 
         Write-Error "$($result.message)"
         return $result
-        break;
+        EXIT 1;
     }
 
     if($UseInvokeMSBuildModule){
-		[bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0
+        [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0
+        $result.BuildDuration = $result.MsBuildProcess.MsBuildProcess.ExitTime - $result.MsBuildProcess.MsBuildProcess.StartTime
     }else{
-		[bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.ExitCode -eq 0
+        [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.ExitCode -eq 0
+        $result.BuildDuration = $result.MsBuildProcess.ExitTime - $result.MsBuildProcess.StartTime
     }
     
     [bool] $buildOutputDoesNotContainFailureMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Build FAILED." -SimpleMatch) -eq $null
@@ -289,7 +292,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
         $result.Message = "Building ""$($result.FiletoBuild)"" Failed! Please check ""$($result.BuildLogFile)"" "
         Write-Error "$($result.message)"
         return $result
-        break;
+        EXIT 1;
     }
 
     Write-Verbose "MSBuild passed. See results below..."

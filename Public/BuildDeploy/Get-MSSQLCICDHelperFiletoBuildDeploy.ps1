@@ -73,7 +73,7 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
     
     if($results.Count -lt 1){
         Write-Error 'No Files found! Please check path and re-run Get-MSSQLCICDHelperFiletoBuild. Exiting'
-        break;
+        EXIT 1;
     }
     elseif($results.Count -gt 1){
         Write-Verbose 'Found multiple files. will return the file with the most recent writedatetime.'
