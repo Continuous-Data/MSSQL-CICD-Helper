@@ -213,8 +213,6 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         $result.ErrorLogFilePath = $null
         $result.ErrorLogFile = $null
         $result.FiletoBuild = $null
-    
-        $result
 
         try{
     
@@ -354,8 +352,8 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
             $result.BuildSucceeded = $false
             $result.Message = "Building ""$($result.FiletoBuild)"" Failed! Please check ""$($result.LogFile)"" "
+            $result
             Write-Error "$($result.message)"
-            return $result
             EXIT 1;
 
         }
