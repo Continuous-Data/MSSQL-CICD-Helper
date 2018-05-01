@@ -121,12 +121,16 @@ Function Save-MSSQLCICDHelperConfiguration {
 
     } else {
         Write-Error "Unknown Platform"
+        EXIT 1;
     }
 
     Write-Verbose 'Testing config path.'
     if (-not (Test-Path (Split-Path $ConfigFile))) {
         New-Item -ItemType Directory -Path (Split-Path $ConfigFile) | Out-Null
 
+    }else{
+        Write-error "Path not found"
+        EXIT 1;
     }
 
     $Parameters | Export-Clixml -Path $ConfigFile

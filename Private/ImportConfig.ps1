@@ -20,6 +20,7 @@ Function ImportConfig {
 
     } else {
         Write-Warning 'No saved configuration information found. Run Save-MSSQL-CICD-HelperConfiguration.'
-        break;
+        Write-Warning "path which was looked for: $configfile"
+        EXIT 1;
     }
 }
