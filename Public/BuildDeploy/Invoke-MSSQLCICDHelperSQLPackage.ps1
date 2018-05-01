@@ -330,7 +330,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         
         
         [bool] $buildReturnedSuccessfulExitCode = $p.ExitCode -eq 0
-        [bool] $buildOutputDoesNotContainFailureMessage = (Select-String -Path $($result.LogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null
+        [bool] $buildOutputDoesNotContainFailureMessage = (((Select-String -Path $($result.LogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null) -or ((Select-String -Path $($result.LogFile) -Pattern "Initializing deployment (Failed)" -SimpleMatch) -eq $null))
         [bool] $buildOutputDoesContainSuccesseMessage = (Select-String -Path $($result.LogFile) -Pattern "Successfully published database." -SimpleMatch -Quiet) -eq $true
         
         $buildSucceeded = $buildOutputDoesNotContainFailureMessage -and $buildReturnedSuccessfulExitCode -and $buildOutputDoesContainSuccesseMessage
