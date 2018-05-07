@@ -278,8 +278,8 @@ function Invoke-MSSQLCICDHelperSQLPackage {
                     $arguments += " /tsn:$($targetservername) /tdn:$($TargetDBName) /tu:$($targetUsername) /tp:$($targetPassword)"
                     $shownarguments = "$arguments /tsn:$($targetservername) /tdn:$($TargetDBName) /tu:$($targetUsername) /tp:******"
                 }else{
-                    #Write-Error "Some of the target Credentials are not filled"
-                    #break;
+                    Write-Error "Some of the target Credentials are not filled"
+                    exit 1;
                 }
             }
 
