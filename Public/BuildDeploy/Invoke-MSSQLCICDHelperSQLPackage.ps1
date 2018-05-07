@@ -52,7 +52,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
     
     
         .OUTPUTS
-        a hashtable with the following details is returned (whether or not using Invoke-MSBuild as the executor):
+        a hashtable with the following details is returned:
     
         Succeeded = $true if the process Succeeded, $false if the Process failed, and $null if we are not sure.
         LogFilePath = The path to the process log file.
@@ -262,7 +262,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             
             
                 
-            Write-Verbose "Constructing Command to build..."
+            Write-Verbose "Constructing Command to execute..."
 
             $arguments = "/k "" ""$($configfile['SQLPackageExe'])"""
 
@@ -284,7 +284,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             }
 
             if($AdditionalArguments){
-                Write-Verbose "The following additional build arguments will be used: $AdditionalArguments"
+                Write-Verbose "The following additional arguments will be used: $AdditionalArguments"
                 $arguments += " $additionalarguments"
                 $shownarguments += " $additionalarguments"
             }
@@ -323,14 +323,14 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
         }catch{
             $errorMessage = $_
-            $result.Message = "Unexpected error occurred while building ""$Path"": $errorMessage"
+            $result.Message = "Unexpected error occurred while processing ""$Path"": $errorMessage"
             $result.Succeeded = $false
             Write-Error ($result.Message)
             return $result
             EXIT 1;
         }
         
-        Write-verbose "MSBuild Started. Continue Checking results..."
+        Write-verbose "SQLPackage.exe Started. Continue Checking results..."
         if(!$hidden){
             
             $output
@@ -340,7 +340,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
     
         if(!(Test-Path -Path $result.LogFile)){
             $result.Succeeded = $false
-            $result.Message = "Could not find file at '$($result.LogFile)' unable to check for correct build."
+            $result.Message = "Could not find file at '$($result.LogFile)' unable to check for correct execution."
     
             Write-Error "$($result.message)"
             return $result
@@ -348,16 +348,16 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         }
         
         
-        [bool] $buildReturnedSuccessfulExitCode = $p.ExitCode -eq 0
-        [bool] $buildOutputDoesNotContainFailureMessage = (((Select-String -Path $($result.LogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null) -or ((Select-String -Path $($result.LogFile) -Pattern "Initializing deployment (Failed)" -SimpleMatch) -eq $null))
-        [bool] $buildOutputDoesContainSuccesseMessage = (Select-String -Path $($result.LogFile) -Pattern "Successfully published database." -SimpleMatch -Quiet) -eq $true
+        [bool] $ProcessReturnedSuccessfulExitCode = $p.ExitCode -eq 0
+        [bool] $ProcessOutputDoesNotContainFailureMessage = (((Select-String -Path $($result.LogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null) -or ((Select-String -Path $($result.LogFile) -Pattern "Initializing deployment (Failed)" -SimpleMatch) -eq $null))
+        [bool] $ProcessOutputDoesContainSuccesseMessage = (Select-String -Path $($result.LogFile) -Pattern "Successfully published database." -SimpleMatch -Quiet) -eq $true
         
-        $buildSucceeded = $buildOutputDoesNotContainFailureMessage -and $buildReturnedSuccessfulExitCode -and $buildOutputDoesContainSuccesseMessage
+        $ProcessSucceeded = $ProcessOutputDoesNotContainFailureMessage -and $ProcessReturnedSuccessfulExitCode -and $ProcessOutputDoesContainSuccesseMessage
         
-        if ($buildSucceeded -eq $true){
+        if ($ProcessSucceeded -eq $true){
 
             $result.Succeeded = $true
-            $result.Message = "Build Passed Successfully"
+            $result.Message = "command executed Successfully"
     
             if (!$keeplogfiles)
                 {
@@ -372,14 +372,14 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         }else{
 
             $result.Succeeded = $false
-            $result.Message = "Building ""$($result.FiletoProcess)"" Failed! Please check ""$($result.LogFile)"" "
+            $result.Message = "Processing ""$($result.FiletoProcess)"" Failed! Please check ""$($result.LogFile)"" "
             $result
             Write-Error "$($result.message)"
             EXIT 1;
 
         }
     
-        Write-Verbose "MSBuild passed. See results below..."
+        Write-Verbose "SQLPackage passed. See results below..."
         $result
         
     }
