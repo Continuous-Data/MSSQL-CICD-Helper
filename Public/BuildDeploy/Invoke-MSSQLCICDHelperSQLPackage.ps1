@@ -276,7 +276,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             }else{
                 if($TargetServerName -and $TargetDBName -and $TargetUserName -and $TargetPassWord){
                     $arguments += " /tsn:$($targetservername) /tdn:$($TargetDBName) /tu:$($targetUsername) /tp:$($targetPassword)"
-
+                    $shownarguments = "$arguments /tsn:$($targetservername) /tdn:$($TargetDBName) /tu:$($targetUsername) /tp:******"
                 }else{
                     #Write-Error "Some of the target Credentials are not filled"
                     #break;
@@ -286,12 +286,15 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             if($AdditionalArguments){
                 Write-Verbose "The following additional build arguments will be used: $AdditionalArguments"
                 $arguments += " $additionalarguments"
+                $shownarguments += " $additionalarguments"
             }
             
             #closing arguments with an exit statement to return to powershell
-            $arguments += " & Exit"" " 
-            Write-Verbose "The following Arguments will be used: $arguments"
-            $result.CommandUsedToBuild = "cmd.exe $arguments"
+            $arguments += " & Exit"" "
+            $shownarguments += " & Exit"" "
+            
+            Write-Verbose "The following Arguments will be used: $shownarguments"
+            $result.CommandUsedToBuild = "cmd.exe $shownarguments"
             
             #constructing the process and the arguments to send:
             $pinfo = New-Object System.Diagnostics.ProcessStartInfo
