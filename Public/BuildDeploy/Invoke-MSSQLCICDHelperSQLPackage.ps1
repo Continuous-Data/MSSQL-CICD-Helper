@@ -315,8 +315,12 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         }
         
         Write-verbose "MSBuild Started. Continue Checking results..."
+        if(!$hidden){
+            
+            $output
+
+        }
         
-        $output
     
         if(!(Test-Path -Path $result.LogFile)){
             $Result.BuildSucceeded = $false
