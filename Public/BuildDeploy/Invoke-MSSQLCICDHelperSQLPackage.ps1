@@ -45,30 +45,29 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         Identifies the password to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
         
         .PARAMETER hidden
-        Switch to use when output from the MSBuild command line tool needs to be hidden instead of shown. 
-        When using the Invoke-MSBuild feature you need to explicitly tell it to show info with "-ShowBuildOutputInCurrentWindow" or something similar given to Parameter -InvokeMSBuildParameters
+        Switch to use when output from the command line tool needs to be hidden instead of shown.
     
         .PARAMETER keeplogfiles
-        Switch to specify that log files should be deleted. only applies on successfull builds.
+        Switch to specify that log files should be deleted. only applies on successfull output.
     
     
         .OUTPUTS
         a hashtable with the following details is returned (whether or not using Invoke-MSBuild as the executor):
     
-        BuildSucceeded = $true if the build passed, $false if the build failed, and $null if we are not sure.
-        LogFilePath = The path to the build's log file.
+        BuildSucceeded = $true if the process Succeeded, $false if the Process failed, and $null if we are not sure.
+        LogFilePath = The path to the process log file.
         Logfile = filename of logfile which was used in the process.
-        ErrorLogFilePath = The path to the build's error log file.
+        ErrorLogFilePath = The path to the Process error log file.
         ErrorLogfile = filename of the errorlogfile.
-        FiletoBuild = The item that MsBuild ran against.
-        CommandUsedToBuild = The full command that was used to invoke MsBuild. This can be useful for inspecting what parameters are passed to MsBuild.exe.
-        Message = A message describing any problems that were encoutered by Invoke-MsBuild. This is typically an empty string unless something went wrong.
-        Duration = The amount of time the build took to complete, represented as a TimeSpan.
+        FiletoBuild = The item that SQLPackage ran against.
+        CommandUsedToBuild = The full command that was used to invoke SQLPackage. This can be useful for inspecting what parameters are passed to SQLPackage.exe.
+        Message = A message describing any problems that were encoutered by the process. This is typically an empty string unless something went wrong.
+        Duration = The amount of time the process took to complete, represented as a TimeSpan.
         
     
         .EXAMPLE
         
-        Invoke-MSSQLCICDHelperSQLPackage -filename <path to file to build> -TargetconnectionString -logfilepath c:\logs\builds
+        Invoke-MSSQLCICDHelperSQLPackage -filename <path to file to publish> -TargetconnectionString -logfilepath c:\logs\builds
         
         Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings other than filename and logfilepath
         Filename = given file
@@ -111,7 +110,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         
         Invoke-MSSQLCICDHelperSQLPackage -AdditionalArguments "/TargetTimeout:600" -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
         
-        Will Run Invoke-MSSQLCICDHelperSQLPackage with additional msbuild parameters. 
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with additional SQLPackage parameters. 
         See https://msdn.microsoft.com/library/hh550080(vs.103).aspx#Publish%20Parameters,%20Properties,%20and%20SQLCMD%20Variables for valid SQLPackage command-line parameters.
 
         Please note that the following parameters are already used / reserverd and should not be used:
@@ -141,28 +140,28 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         [cmdletbinding()]
         param(
             [Parameter(Mandatory=$false,
-                   HelpMessage='Filename which should be used for building. If empty it will find the nearest Solution based on the directory it was invoked from.',
+                   HelpMessage='Filename which should be used for publish. If empty it will find the nearest Solution based on the directory it was invoked from.',
                    Position=0)]
             
             [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
             $filename,
 
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Provides additional Arguments. Example "/TargetTimeout:600"',
                    Position=0)]
             [Alias("Parameters","Params","P")]
             [ValidateNotNullOrEmpty()]
             [String] $AdditionalArguments,
 
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines the basepath where logfiles should be stored. if empty the directory where the script is running will be used',
                    Position=0)]
             [Alias("lfp")]
             [ValidateNotNullOrEmpty()]
             [String] $logfilepath,
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target for publishing based on a connectionstring',
                    Position=0)]
             [Alias("tconstr")]
             [ValidateNotNullOrEmpty()]
@@ -170,7 +169,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target Server for publishing',
                    Position=0)]
             [Alias("tsn", "TargetServer")]
             [ValidateNotNullOrEmpty()]
@@ -179,7 +178,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target Database for publishing',
                    Position=0)]
             [Alias("tdn","TargetDB")]
             [ValidateNotNullOrEmpty()]
@@ -188,7 +187,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target Username for publishing',
                    Position=0)]
             [Alias("tu", "TargetUser")]
             [ValidateNotNullOrEmpty()]
@@ -196,14 +195,14 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target Password for publishing',
                    Position=0)]
             [Alias("tp", "TargetPass")]
             [ValidateNotNullOrEmpty()]
             [String] $TargetPassWord,
 
             [Parameter(Mandatory=$false,
-                   HelpMessage='Switch to only retrieve the outcome of MSBuild. Hides the MSBuildProces on screen. When using Invoke-MSBuild the default setting for invoking the function will be hidden.',
+                   HelpMessage='Switch to only retrieve the outcome of sqlpackage. Hides the SQLPackage.exe on screen.',
                    Position=0)]
             #[Alias("Parameters","Params","P")]
             [ValidateNotNullOrEmpty()]
