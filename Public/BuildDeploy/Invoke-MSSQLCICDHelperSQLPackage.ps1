@@ -233,11 +233,12 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             
             
             if($logfilepath){
-                $logfile = "$($logfilepath)"
+                $logfile = "{0}\$($filename.name).SQLPackage.log" -f $logfilepath
+                $errorlogfile = "{0}\$($filename.name).SQLPackage.errors.log" -f $logfilepath
             }else{
                 $logfile = "{0}\$($filename.name).SQLPackage.log" -f $curdir
+                $errorlogfile = "{0}\$($filename.name).SQLPackage.errors.log" -f $curdir
             }
-            $errorlogfile = "{0}\$($filename.name).SQLPackage.errors.log" -f $curdir
             $logbase = Split-Path -path $logfile -Parent
             $result.LogFilePath = $logbase
             $result.LogFile = $logfile
