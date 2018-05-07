@@ -1,125 +1,140 @@
 function Invoke-MSSQLCICDHelperSQLPackage {
     <#
         .SYNOPSIS
-        Builds the given Visual Studio solution or project file using MsBuild.
+        publishes a given DacPac file to specified target.
     
         .DESCRIPTION
-        Executes the MsBuild.exe tool against the specified Visual Studio solution or project file.
-        Returns a hash table with properties for determining if the build succeeded or not, as well as other information (see the OUTPUTS section for list of properties).
+        Executes the SQLPackage.exe tool against the specified DacPac file. If no DacPac file is specified the tool will search for one from current directory (root of the Source Code.)
+        Returns a hash table with properties for determining if the publish succeeded or not, as well as other information (see the OUTPUTS section for list of properties).
     
         .PARAMETER filename
-        The path of the Visual Studio solution or project to build (e.g. a .sln or .csproj file). 
+        The path including file of the DacPac file to publish (e.g. a .dacpac file). 
         If left empty the Module will search Recursively for the nearest Solution file where the basepath will the path where the script is Ran (not to be confused with script location)
     
-        .PARAMETER MSBuildArguments
-        Additional parameters to pass to the MsBuild command-line tool. This can be any valid MsBuild command-line parameters except for the path of
-        the solution/project to build.
+        .PARAMETER AdditionalArguments
+        Additional parameters to pass to the SQLPackage command-line tool. This can be any valid sqlpackage command-line parameter(s) except for the ones mentioned below.
     
-        See http://msdn.microsoft.com/en-ca/library/vstudio/ms164311.aspx for valid MsBuild command-line parameters.
-    
+        See https://msdn.microsoft.com/library/hh550080(vs.103).aspx#Publish%20Parameters,%20Properties,%20and%20SQLCMD%20Variables for valid SQLPackage command-line parameters.
+
+        Please note that the following parameters are already used / reserverd and should not be used:
+
+        /action
+        /SourceFile
+        /TargetConnectionString
+        /TargetServerName
+        /TargetDatabaseName
+        /TargetUsername
+        /TargetPassword
+        
+        .PARAMETER logfilepath
+        Determines the basepath where logfileoutput will be stored. If left empty the directory will be used where the script is ran.
+        
+        .PARAMETER TargetConnectionString
+        Identifies the Connectionstring to be used for the Target. Will overrule any other $Target<xxx>parameter.
+        
+        .PARAMETER TargetServerName
+        Identifies the Server to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
+        
+        .PARAMETER TargetDBName
+        Identifies the Database Name to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
+        
+        .PARAMETER TargetUserName
+        Identifies the Username to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
+        
+        .PARAMETER TargetPassword
+        Identifies the password to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
+        
         .PARAMETER hidden
         Switch to use when output from the MSBuild command line tool needs to be hidden instead of shown. 
         When using the Invoke-MSBuild feature you need to explicitly tell it to show info with "-ShowBuildOutputInCurrentWindow" or something similar given to Parameter -InvokeMSBuildParameters
     
-    
         .PARAMETER keeplogfiles
         Switch to specify that log files should be deleted. only applies on successfull builds.
     
-    
-        .PARAMETER UseInvokeMSBuildModule
-        Instead of using the MSBuildfeatures from MSSQL-CICD-Helper the more advanced Invoke-MSBuild can be called.
-    
-        .PARAMETER InvokeMSBuildParameters
-        This Parameter is used as a string to pass additional parameters to the Invoke-MSBuild function.
-        Default we pass -Path, -LogDirectory and -KeepBuildLogOnSuccessfulBuilds so keep away from those.
     
         .OUTPUTS
         a hashtable with the following details is returned (whether or not using Invoke-MSBuild as the executor):
     
         BuildSucceeded = $true if the build passed, $false if the build failed, and $null if we are not sure.
         LogFilePath = The path to the build's log file.
-        BuildErrorsLogFilePath = The path to the build's error log file.
+        Logfile = filename of logfile which was used in the process.
+        ErrorLogFilePath = The path to the build's error log file.
+        ErrorLogfile = filename of the errorlogfile.
         FiletoBuild = The item that MsBuild ran against.
         CommandUsedToBuild = The full command that was used to invoke MsBuild. This can be useful for inspecting what parameters are passed to MsBuild.exe.
         Message = A message describing any problems that were encoutered by Invoke-MsBuild. This is typically an empty string unless something went wrong.
-        MsBuildProcess = The process that was used to execute MsBuild.exe.
         Duration = The amount of time the build took to complete, represented as a TimeSpan.
+        
     
         .EXAMPLE
         
-        Invoke-MSSQLCICDHelperMSBuild
+        Invoke-MSSQLCICDHelperSQLPackage -filename <path to file to build> -TargetconnectionString -logfilepath c:\logs\builds
         
-        Will Run Invoke-MSSQLCICDHelperMSBuild with the default settings
-        Filename = Autodetect
-        Non hidden
-        Delete logfiles when successfull.
-        
-        .EXAMPLE
-        
-        Invoke-MSSQLCICDHelperMSBuild -Verbose
-        
-        Will Run Invoke-MSSQLCICDHelperMSBuild with the default settings but show verbose output. (this goes for other CMDLetbindings aswell)
-        Filename = Autodetect
-        Non hidden
-        Delete logfiles when successfull.
-    
-        .EXAMPLE
-        
-        Invoke-MSSQLCICDHelperMSBuild -filename <path to file to build>
-        
-        Will Run Invoke-MSSQLCICDHelperMSBuild with the default settings other than filename
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings other than filename and logfilepath
         Filename = given file
+        logfiles will be stored in c:\logs\builds\
         Non hidden
         Delete logfiles when successfull.
-    
+        Will use the designated Connection string.
+
         .EXAMPLE
         
-        Invoke-MSSQLCICDHelperMSBuild -KeepLogfiles -hidden
+        Invoke-MSSQLCICDHelperSQLPackage -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
         
-        Will Run Invoke-MSSQLCICDHelperMSBuild with not showing ouput and keeping logfiles when done.
-        Filename = Autodetect
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings
+        Filename = will search for a dacpac from the current directory.
+        Non hidden
+        Delete logfiles when successfull.
+        Will use the mentioned credentials
+
+        .EXAMPLE
+        
+        Invoke-MSSQLCICDHelperSQLPackage -KeepLogfiles -hidden -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
+        
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings
+        Filename = will search for a dacpac from the current directory.
         hidden
         Don't Delete logfiles when successfull.
+        Will use the mentioned credentials
+
+        .EXAMPLE
+        
+        Invoke-MSSQLCICDHelperSQLPackage -Verbose -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
+        
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings with added verbosity in it's output.
+        Filename = will search for a dacpac from the current directory.
+        Not hidden
+        Delete logfiles when successfull.
+        Will use the mentioned credentials
     
         .EXAMPLE
         
-        Invoke-MSSQLCICDHelperMSBuild -MSBuildArguments "t:build"
+        Invoke-MSSQLCICDHelperSQLPackage -AdditionalArguments "/TargetTimeout:600" -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
         
-        Will Run Invoke-MSSQLCICDHelperMSBuild with additional msbuild parameters. 
-        See http://msdn.microsoft.com/en-ca/library/vstudio/ms164311.aspx for valid MsBuild command-line parameters.
-    
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with additional msbuild parameters. 
+        See https://msdn.microsoft.com/library/hh550080(vs.103).aspx#Publish%20Parameters,%20Properties,%20and%20SQLCMD%20Variables for valid SQLPackage command-line parameters.
+
+        Please note that the following parameters are already used / reserverd and should not be used:
+
+        /action
+        /SourceFile
+        /TargetConnectionString
+        /TargetServerName
+        /TargetDatabaseName
+        /TargetUsername
+        /TargetPassword
+
         Filename = Autodetect
         Non hidden
         Delete logfiles when successfull.
     
-        .EXAMPLE
-        
-        Invoke-MSSQLCICDHelperMSBuild -UseInvokeMSBuildModule
-        
-        Will Run Invoke-MSBuild with the default settings. The Following parameters will automatically be supplied to Invoke-MSBuild: -Path $filename (or auto-detect), -LogDirectory Parent of $filename and -KeepBuildLogOnSuccessfulBuilds because we want to have files to check.
-        Filename = Auto-Detect
-        Hidden by default
-        Delete logfiles when successfull.
-    
-        .EXAMPLE
-        
-        Invoke-MSSQLCICDHelperMSBuild -UseInvokeMSBuildModule -InvokeMSBuildParameters <params to pass in valid powershell formatting -paramname value>
-        
-        Will Run Invoke-MSBuild with the additional settings specified. keep away from below settings because we automatically feed them to the function and can't be specified twice
-        The Following parameters will automatically be supplied to Invoke-MSBuild: -Path $filename (or auto-detect), -LogDirectory Parent of $filename and -KeepBuildLogOnSuccessfulBuilds because we want to have files to check.
-    
-        See https://github.com/deadlydog/Invoke-MsBuild for valid optional Parameters.
-    
-        Filename = Auto-Detect
-        Hidden by default
-        Delete logfiles when successfull.
     
         .LINK
         Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools
     
         .NOTES
         Name:   MSSQLCICDHelper
-        Author: Tobi Steenbakkers (partly based on the Invoke-MSBuild Module by Daniel Schroeder https://github.com/deadlydog/Invoke-MsBuild)
+        Author: Tobi Steenbakkers
         Version: 1.0.0
     #>
         
@@ -204,7 +219,6 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         
         $result = @{}
         $result.CommandUsedToBuild = [string]::Empty
-        $result.MsBuildProcess = $null
         $result.BuildSucceeded = $null
         $result.Message = [string]::Empty
         $result.Duration = [TimeSpan]::Zero
