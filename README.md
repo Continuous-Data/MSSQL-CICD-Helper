@@ -119,13 +119,48 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 ## Save-MSSQLCICDHelperConfiguration
 
+### Parameters
+
+### Usage
+
+### examples
+
 ## Get-MSSQLCICDHelperConfiguration
+
+### Parameters
+
+### Usage
+
+### examples
 
 ## Get-MSSQLCICDHelperPaths
 
+### Parameters
+
+### Usage
+
+### examples
+
 ## Get-MSSQLCICDHelperFiletoBuildDeploy
+
+### Parameters
+
+### Usage
+
+### examples
 
 ## Invoke-MSSQLCICDHelperMSBuild
 
+### Parameters
+
+### Usage
+
+### examples
+
 ## Invoke-MSSQLCICDHelperSQLPackage
  
+### Parameters
+
+### Usage
+
+### examples
