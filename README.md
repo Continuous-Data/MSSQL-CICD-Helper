@@ -83,7 +83,7 @@ be advised that if you use a CI system or Docker that you need to clone / import
 
 # Configuration
 
-Configuration is needed one time at first execution (or when using docker you need to inject your config file after you generate it first). using **Save-MSSQLCICDHelperConfiguration** will let you store the filepath to SQLPackage.exe and MSBuild.exe
+Configuration is needed one time at first execution (or when using docker you need to inject your config file after you generate it first). using **[Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration)** will let you store the filepath to SQLPackage.exe and MSBuild.exe
 
 example:
 
@@ -99,7 +99,7 @@ C:\Users\<user>\AppData\Roaming\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml
 
 You don't need to store both executables if you only want to partial functionality but it is advised to store them both. After you've saved the configuration you are set to go.
 
-If you are unsure where either MSBuild / SQLPackage is located on your system (or on the runners system) you can use **Get-MSSQLCICDHelperPaths**. To review your saved config file use **Get-MSSQLCICDHelperConfiguration**.
+If you are unsure where either MSBuild / SQLPackage is located on your system (or on the runners system) you can use **[Get-MSSQLCICDHelperPaths](#get-mssqlcicdhelperpaths)**. To review your saved config file use **[Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration)**.
 
 # Functions
 
@@ -125,6 +125,8 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 ### examples
 
+----
+
 ## Get-MSSQLCICDHelperConfiguration
 
 ### Parameters
@@ -132,6 +134,8 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 ### Usage
 
 ### examples
+
+----
 
 ## Get-MSSQLCICDHelperPaths
 
@@ -141,6 +145,8 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 ### examples
 
+----
+
 ## Get-MSSQLCICDHelperFiletoBuildDeploy
 
 ### Parameters
@@ -149,6 +155,8 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 ### examples
 
+----
+
 ## Invoke-MSSQLCICDHelperMSBuild
 
 ### Parameters
@@ -156,6 +164,8 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 ### Usage
 
 ### examples
+
+----
 
 ## Invoke-MSSQLCICDHelperSQLPackage
  
