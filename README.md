@@ -1,4 +1,4 @@
-![CICD Logo](/Private/Images/cicd.png "CICD Logo")
+![CICD Logo](/Private/Images/CICD.png "CICD Logo")
 ![SQL Logo](/Private/Images/sql.png "SQL Logo")
 
 
