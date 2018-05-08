@@ -1,8 +1,15 @@
 ![CICD Logo](/Private/Images/CICD.png "CICD Logo")
 ![SQL Logo](/Private/Images/sql.png "SQL Logo")
 
-
 # MSSQL-CICD-Helper
+
+- Introduction
+- Installation
+- Configuration
+- Functions
+- Support / Contribution
+
+# Introduction
 
 This repo contains a powershell module which helps and aids in CI / CD processes specifically for MSSQL (Microsoft SQL Server). 
 The module was born because not every CI / CD tool supports the quirks often presented when trying to implement CI / CD in combination with SQL Server Projects (more on this in Background). 
@@ -11,7 +18,7 @@ The main issue is that most current CI systems do not help in discovery of files
 
 MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Solution is configured. Something i found which would often differ in each project / solution (definitely not a best practice ^^)
 
-## functionality
+## Functionality
 
 - find any sln, sqlproject, dacpac, publish XML or dtspac on a runner / container based on the pulled sourcecode
 - run MSBuild for SQLProjects / SLN files (with above mentioned auto-discovery)
@@ -34,7 +41,7 @@ MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Soluti
 - maintaining / exporting dacpac prior to deploy
 - support for saving environments for deploying (which you should do in your CI system if possible)
 
-## Support
+## Supported CI Systems
 
 The following CI systems were tested and are supported:
 
@@ -57,7 +64,7 @@ In order for this module to work, your SQL Data products must be maintained / de
 
 Obviously for best results a true CI system as mentioned aboved should be used alongside this module. However the module can be used on its own for starting out companies. Depending on your architecture a seperate packaging / deployment tool (like octopusdeploy) is advised.
 
-## Instructions
+## download and install
 
 Either download this repo and save it with your source code or make a git clone at runtime within your pipeline (especially needed when running in docker containers). 
 
@@ -83,7 +90,7 @@ be advised that if you use a CI system or Docker that you need to clone / import
 
 # Configuration
 
-Configuration is needed one time at first execution (or when using docker you need to inject your config file after you generate it first). using **[Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration)** will let you store the filepath to SQLPackage.exe and MSBuild.exe
+Configuration is needed one time at first execution (or when using docker you need to inject your config file after you generate it first). using [Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration) will let you store the filepath to SQLPackage.exe and MSBuild.exe
 
 example:
 
@@ -91,15 +98,17 @@ example:
 Save-MSSQLCICDHelperConfiguration -SQLPackageExePath c:\SQLPackage.Exe -MSBuildExePath c:\MSBuild.exe
 ```
 
-This will store c:\MSBuild.exe for calling MSBuild and C:\SQLPackage.exe for calling SQLPackage. The configuration is stored in an PSXML file in the local users **AppData** folder called **MSSQLCICDHelperConfiguration.xml**.
+This will store `c:\MSBuild.exe` for calling *MSBuild* and `C:\SQLPackage.exe` for calling *SQLPackage*. The configuration is stored in an PSXML file in the local users *AppData* folder called `MSSQLCICDHelperConfiguration.xml`.
 
 ```windows
+Example:
+
 C:\Users\<user>\AppData\Roaming\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml
 ```
 
 You don't need to store both executables if you only want to partial functionality but it is advised to store them both. After you've saved the configuration you are set to go.
 
-If you are unsure where either MSBuild / SQLPackage is located on your system (or on the runners system) you can use **[Get-MSSQLCICDHelperPaths](#get-mssqlcicdhelperpaths)**. To review your saved config file use **[Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration)**.
+If you are unsure where either MSBuild / SQLPackage is located on your system (or on the runners system) you can use [Get-MSSQLCICDHelperPaths](#get-mssqlcicdhelperpaths). To review your saved config file use [Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration).
 
 # Functions
 
@@ -119,58 +128,67 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 ## Save-MSSQLCICDHelperConfiguration
 
-### Parameters
+#### Parameters
 
-### Usage
+#### Usage
 
-### examples
+#### examples
 
 ----
 
 ## Get-MSSQLCICDHelperConfiguration
 
-### Parameters
+#### Parameters
 
-### Usage
+#### Usage
 
-### examples
+#### examples
 
 ----
 
 ## Get-MSSQLCICDHelperPaths
 
-### Parameters
+#### Parameters
 
-### Usage
+#### Usage
 
-### examples
+#### examples
 
 ----
 
 ## Get-MSSQLCICDHelperFiletoBuildDeploy
 
-### Parameters
+#### Parameters
 
-### Usage
+#### Usage
 
-### examples
+#### examples
 
 ----
 
 ## Invoke-MSSQLCICDHelperMSBuild
 
-### Parameters
+#### Parameters
 
-### Usage
+#### Usage
 
-### examples
+#### examples
 
 ----
 
 ## Invoke-MSSQLCICDHelperSQLPackage
  
-### Parameters
+#### Parameters
 
-### Usage
+#### Usage
 
-### examples
+#### examples
+
+----
+
+# Support / Contribution
+
+If you want added features or find an issue please let me know by raising an issue on github. You are welcome to contribute if you have additional features or want to refactor. 
+By no means I am a senior Powershell programmer so please point me towards good code convention if you feel my code lacks in some kind.
+
+also some help in automated testing would be helpful (pester etc.)
