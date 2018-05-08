@@ -10,7 +10,7 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
     For building solutions with multiple projects specify the solution instead of the project
 
     .PARAMETER typetofind
-    Determines the kind of file to find. Accepts Solution, Project, Dacpac, DTSPac
+    Determines the kind of file to find. Accepts Solution, Project, Dacpac, PublishProfile, DTSPac
     Mandatory
 
     .PARAMETER rootpath
@@ -36,7 +36,7 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
     [cmdletbinding()]
     param(
         [Parameter(Mandatory=$true,
-               HelpMessage='What to find: *.sln, *.dacpac, *.dtspac or *.sqlproject File. Options are: Solution, DacPac, DTSPack or Project',
+               HelpMessage='What to find: *.sln, *.dacpac, *.publish.xml *.dtspac or *.sqlproject File. Options are: Solution, DacPac, DTSPack or Project',
                Position=0)]
         [ValidateNotNullOrEmpty()]
         $typetofind,
@@ -58,12 +58,15 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
         "DacPac"{
             $buildfilextension = '*.dacpac'
         }
+        "PublishProfile"{
+            $buildfilextension = '*.publish.xml'
+        }
         "DTSPac"{
             $buildfilextension = '*.dtspac'
         }
         default {
-            Write-Error "Invalid option given for input param -Projecttype. valid options are: Solution, Project, dacpac, dtspac"
-            break;
+            Write-Error "Invalid option given for input param -typetofind. valid options are: Solution, Project, dacpac, PublishProfile or dtspac"
+            EXIT 1;
         }
     }
 

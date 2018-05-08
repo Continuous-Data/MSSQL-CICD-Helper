@@ -20,6 +20,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
         /action
         /SourceFile
+        /Profile
         /TargetConnectionString
         /TargetServerName
         /TargetDatabaseName
@@ -31,6 +32,14 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         
         .PARAMETER TargetConnectionString
         Identifies the Connectionstring to be used for the Target. Will overrule any other $Target<xxx>parameter.
+
+        .PARAMETER PublishProfile
+        Identifies the filepath for a Publishprofile to be used. 
+        If used in conjunction with a targetconnectionstring or any of the other target variables the settings in the Publish profile will be overuled as per default function of SQLPackage. 
+        Depending on your setup you will need to use custom credentials next to using a publishing profile.
+
+        .PARAMETER DetectPublishProfile
+        Switch to use a publishing profile and have the script detect it. Publishing profiles should always be named *.publish.xml in order to be detected.
         
         .PARAMETER TargetServerName
         Identifies the Server to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
@@ -78,6 +87,28 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
         .EXAMPLE
         
+        Invoke-MSSQLCICDHelperSQLPackage -Publishprofile C:\builds\<yourname>.publish.xml -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
+        
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings
+        Filename = will search for a dacpac from the current directory.
+        will use the mentioned Publishing profile for non-credential settings
+        Non hidden
+        Delete logfiles when successfull.
+        Will use the mentioned credentials
+
+        .EXAMPLE
+        
+        Invoke-MSSQLCICDHelperSQLPackage -DetectPublishProfile
+        
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings
+        Filename = will search for a dacpac from the current directory.
+        Publishing profile will be detected from the current directory.
+        Non hidden
+        Delete logfiles when successfull.
+        Credentials are taken from the publishing profile.
+
+        .EXAMPLE
+        
         Invoke-MSSQLCICDHelperSQLPackage -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
         
         Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings
@@ -117,6 +148,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
         /action
         /SourceFile
+        /Profile
         /TargetConnectionString
         /TargetServerName
         /TargetDatabaseName
@@ -166,6 +198,20 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             [Alias("tconstr")]
             [ValidateNotNullOrEmpty()]
             [String] $TargetConnectionString,
+
+            [Parameter(Mandatory=$false,
+                   HelpMessage='input for path + filename for publishing profile to be used.',
+                   Position=0)]
+            [Alias("pr")]
+            [ValidateNotNullOrEmpty()]
+            [String] $PublishProfile,
+
+            [Parameter(Mandatory=$false,
+                   HelpMessage='Use this switch if you want to use a publish profile but have it detected by the software. Will override a given $PublishProfile.',
+                   Position=0)]
+            [Alias("detectpr")]
+            [ValidateNotNullOrEmpty()]
+            [Switch] $DetectPublishProfile,
 
             
             [Parameter(Mandatory=$false,
@@ -244,6 +290,10 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             #$filename 
             write-Verbose "The following file will be built: $($filename.Name) located in path $($filename.DirectoryName)"
             
+            if($DetectPublishProfile){
+                write-verbose "No filename given. Running Get-MSSQLCICDHelperFiletoBuildDeploy based to find the Solution in current script path $curdir"
+                $PublishProfile = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'PublishProfile' -RootPath $curdir | Get-ChildItem
+            }
             
             if($logfilepath){
                 $logfile = "{0}\$($filename.name).SQLPackage.log" -f $logfilepath
@@ -282,6 +332,11 @@ function Invoke-MSSQLCICDHelperSQLPackage {
                     Write-Error "Some of the target Credentials are not filled"
                     exit 1;
                 }
+            }
+
+            if($PublishProfile){
+                $arguments += " /pr:""$($PublishProfile)"""
+                $shownarguments += " /pr:""$($PublishProfile)"""
             }
 
             if($AdditionalArguments){
