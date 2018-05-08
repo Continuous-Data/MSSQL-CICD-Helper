@@ -3,11 +3,11 @@
 
 # MSSQL-CICD-Helper
 
-- Introduction
-- Installation
-- Configuration
-- Functions
-- Support / Contribution
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Functions](#functions)
+- [Support / Contribution](#support--contribution)
 
 # Introduction
 
@@ -130,9 +130,34 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 #### Parameters
 
+*-SQLPackagePath (String) - Mandatory: False*
+
+`Usage: -SQLPackagePath C:\yourpath\SqlPackage.exe`
+
+*-MSBuildPath (String) - Mandatory: False*
+
+`Usage: -MSBuildPath C:\yourpath\MSBuild.exe`
+
 #### Usage
 
-#### examples
+```Powershell
+Save-MSSQLCICDHelperConfiguration -MSBuildPath C:\yourpath\MSBuild.exe -SQLPackagePath C:\yourpath\SqlPackage.exe
+```
+
+#### Examples
+
+Save both MSBuild and SQLPackage Paths:
+
+```Powershell
+Save-MSSQLCICDHelperConfiguration -MSBuildPath C:\yourpath\MSBuild.exe -SQLPackagePath C:\yourpath\SqlPackage.exe
+```
+
+Save just MSBuild path:
+
+```Powershell
+Save-MSSQLCICDHelperConfiguration -MSBuildPath C:\yourpath\MSBuild.exe
+```
+
 
 ----
 
@@ -140,9 +165,21 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 #### Parameters
 
+None
+
 #### Usage
 
-#### examples
+```Powershell
+Get-MSSQLCICDHelperConfiguration
+```
+
+#### Examples
+
+Return saved configuration:
+
+```Powershell
+Get-MSSQLCICDHelperConfiguration
+```
 
 ----
 
@@ -152,7 +189,7 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 #### Usage
 
-#### examples
+#### Examples
 
 ----
 
@@ -162,7 +199,7 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 #### Usage
 
-#### examples
+#### Examples
 
 ----
 
@@ -172,7 +209,7 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 #### Usage
 
-#### examples
+#### Examples
 
 ----
 
@@ -182,7 +219,7 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 #### Usage
 
-#### examples
+#### Examples
 
 ----
 
