@@ -141,7 +141,7 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 #### Usage
 
 ```Powershell
-Save-MSSQLCICDHelperConfiguration -MSBuildPath C:\yourpath\MSBuild.exe -SQLPackagePath C:\yourpath\SqlPackage.exe
+Save-MSSQLCICDHelperConfiguration -MSBuildPath <yourpath>.msbuild.exe -SQLPackagePath <yourpath>SqlPackage.exe
 ```
 
 #### Examples
@@ -187,9 +187,32 @@ Get-MSSQLCICDHelperConfiguration
 
 #### Parameters
 
+*-typetofind  (String) - Mandatory: True*
+
+`Usage: -typetofind MSBuild`
+
+Values Allowed:
+
+- MSBuild -- searches for MSBuild.exe from -rootpath
+- SQLPackage -- searches for SQLPackage.exe from -rootpath
+- Both -- searches for MSBuild.exe & SQLPackage.exe from -rootpath
+
+*-rootpath (String) - Mandatory: True*
+
+`Usage: -SQLPackagePath C:\yourpath\`
+
 #### Usage
 
+```Powershell
+Get-MSSQLCICDHelperPaths -typetofind <typetofind> -rootpath <path to search from>
+```
+
 #### Examples
+
+Search for both MSBuild and SQLPackage from c:\users
+```Powershell
+Get-MSSQLCICDHelperPaths -typetofind Both -rootpath c:\users
+```
 
 ----
 
