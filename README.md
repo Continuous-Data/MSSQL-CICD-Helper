@@ -1,5 +1,5 @@
-![CICD Logo](/Private/images/cicd.png "CICD Logo")
-![SQL Logo](/Private/images/sql.png "SQL Logo")
+![CICD Logo](/Private/Images/cicd.png "CICD Logo")
+![SQL Logo](/Private/Images/sql.png "SQL Logo")
 
 
 # MSSQL-CICD-Helper
