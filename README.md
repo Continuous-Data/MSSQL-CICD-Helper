@@ -105,15 +105,15 @@ If you are unsure where either MSBuild / SQLPackage is located on your system (o
 
 ## configuration related functions
 
-- [Save-MSSQLCICDHelperConfiguration](##-Save-MSSQLCICDHelperConfiguration)
-- Get-MSSQLCICDHelperConfiguration
-- Get-MSSQLCICDHelperPaths
+- [Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration)
+- [Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration)
+- [Get-MSSQLCICDHelperPaths](#get-mssqlcicdhelperpaths)
 
 ## Build / Deploy related functions
 
-- Get-MSSQLCICDHelperFiletoBuildDeploy
-- Invoke-MSSQLCICDHelperMSBuild
-- Invoke-MSSQLCICDHelperSQLPackage
+- [Get-MSSQLCICDHelperFiletoBuildDeploy](#get-mssqlcicdhelperfiletobuilddeploy)
+- [Invoke-MSSQLCICDHelperMSBuild](#invoke-mssqlcicdhelpermsbuild)
+- [Invoke-MSSQLCICDHelperSQLPackage](#invoke-mssqlcicdhelpersqlpackage)
 
 ----
 
