@@ -53,7 +53,7 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
             $buildfilextension = '*.sln'
         }
         "project"{
-            $buildfilextension = '*.sqlproject'
+            $buildfilextension = '*.sqlproj'
         }
         "DacPac"{
             $buildfilextension = '*.dacpac'
