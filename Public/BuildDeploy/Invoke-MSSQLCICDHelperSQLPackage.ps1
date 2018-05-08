@@ -241,7 +241,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             else{
                 $filename = Get-ChildItem $filename
             }
-            $filename 
+            #$filename 
             write-Verbose "The following file will be built: $($filename.Name) located in path $($filename.DirectoryName)"
             
             
