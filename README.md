@@ -4,16 +4,18 @@
 
 # MSSQL-CICD-Helper
 
-This repo contains a powershell module which helps and aids in CI / CD processes. The module was born because not every CI / CD tool supports the quirks often presented when trying to implement CI / CD. Most current CI systems do not help in discovery which makes it difficult to automate building processes because your pipeline code needs to be customized for each solution / Database which you want running in your pipeline.
+This repo contains a powershell module which helps and aids in CI / CD processes. The module was born because not every CI / CD tool supports the quirks often presented when trying to implement CI / CD in combination with SQL Server. 
 
-MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Solution is configured.
+The main issue is that most current CI systems do not help in discovery of files to build / deploy which makes it difficult to automate building processes because your pipeline code needs to be customized for each solution / Database which you want running in your pipeline.
+
+MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Solution is configured. Something i found which would often differ in each project / solution (definitely not a best practice ^^)
 
 ## functionality
 
-- find any sln, sqlproject, dacpac, publish XML or dtspac
+- find any sln, sqlproject, dacpac, publish XML or dtspac on a runner / container based on the pulled sourcecode
 - run MSBuild for SQLProjects / SLN files (with above mentioned auto-discovery)
   - call either built-in MSBuild function or use Invoke-MSBuild
-  - Support for adding custom arguments to MSBuild / Invoke-MSBuild
+  - Support for adding custom arguments to MSBuild / Invoke-MSBuild (https://github.com/deadlydog/Invoke-MsBuild)
 - Deploy / Publish DacPac files (with above mentioned discovery)
   - Support for connectionstrings
   - support for publishing profiles
