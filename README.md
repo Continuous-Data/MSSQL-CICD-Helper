@@ -9,6 +9,8 @@
 - [Functions](#functions)
 - [Support / Contribution](#support--contribution)
 
+---- 
+
 # Introduction
 
 This repo contains a powershell module which helps and aids in CI / CD processes specifically for MSSQL (Microsoft SQL Server). 
@@ -22,8 +24,8 @@ MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Soluti
 
 - find any sln, sqlproject, dacpac, publish XML or dtspac on a runner / container based on the pulled sourcecode
 - run MSBuild for SQLProjects / SLN files (with above mentioned auto-discovery)
-  - call either built-in MSBuild function or use Invoke-MSBuild
-  - Support for adding custom arguments to MSBuild / Invoke-MSBuild (https://github.com/deadlydog/Invoke-MsBuild)
+  - call either built-in MSBuild function or use Invoke-MSBuild (https://github.com/deadlydog/Invoke-MsBuild)
+  - Support for adding custom arguments to MSBuild / Invoke-MSBuild
 - Deploy / Publish DacPac files (with above mentioned discovery)
   - Support for connectionstrings
   - support for publishing profiles
@@ -31,15 +33,15 @@ MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Soluti
   - support for adding any custom arguments to SQLPackage.exe
 - discover and save MsBuild.exe / SQLPackage.exe on runner system
 
-## upcoming features
+## Upcoming features
 
 - Building and deploying SSIS packages
 - Building and deploying SSAS packages
 - Building and deploying SSRS packages
-- call a test script such as T-SQLT
+- Test Automation (such as T-SQLT)
 - Support for Azure SQL Database (it does support Azure VMs with SQL installed on it)
-- maintaining / exporting dacpac prior to deploy
-- support for saving environments for deploying (which you should do in your CI system if possible)
+- Maintaining / exporting dacpac prior to deploy
+- Support for saving environments for deploying (which you should do in your CI system if possible)
 
 ## Supported CI Systems
 
@@ -52,9 +54,11 @@ The following CI systems were tested and are supported:
 
 Please let me know if you have this in place in another CI system so I can add it to the list!
 
-## background
+## Background
 
 One of the challenges I faced was when we switched CI systems and having to change a lot of the pipeline code because of hardcoded references to either solution / dacpac files. having to change all these references broke code a lot and as such I decided to make a powershell module which is versatile and exchangable when you switch CI systems.
+
+----
 
 # Installation
 
@@ -64,19 +68,19 @@ In order for this module to work, your SQL Data products must be maintained / de
 
 Obviously for best results a true CI system as mentioned aboved should be used alongside this module. However the module can be used on its own for starting out companies. Depending on your architecture a seperate packaging / deployment tool (like octopusdeploy) is advised.
 
-## download and install
+## Download and install
 
 Either download this repo and save it with your source code or make a git clone at runtime within your pipeline (especially needed when running in docker containers). 
 
 A kicker script is recommended for orchestrating your pipeline (if you need help with this contact me.)
 
-### downloading / cloning the module
+### Downloading / Cloning the module
 
 ```Powershell
 git clone https://github.com/tsteenbakkers/MSSQL-CICD-Helper.git
 ```
 
-### importing the module
+### Importing the module
 
 after cloning (or if you store it with your database code) you need to import this module in order to make the functions available:
 
@@ -87,6 +91,8 @@ Import-Module <path>\MSSQL-CICD-Helper\MSSQLCICDHelper.PSD1
 if you add a -verbose switch it will also display all the functions exported
 
 be advised that if you use a CI system or Docker that you need to clone / import at each seperate build.
+
+----
 
 # Configuration
 
@@ -110,9 +116,11 @@ You don't need to store both executables if you only want to partial functionali
 
 If you are unsure where either MSBuild / SQLPackage is located on your system (or on the runners system) you can use [Get-MSSQLCICDHelperPaths](#get-mssqlcicdhelperpaths). To review your saved config file use [Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration).
 
+----
+
 # Functions
 
-## configuration related functions
+## Configuration related functions
 
 - [Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration)
 - [Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration)
@@ -220,9 +228,34 @@ Get-MSSQLCICDHelperPaths -typetofind Both -rootpath c:\users
 
 #### Parameters
 
+*-typetofind  (String) - Mandatory: True*
+
+`Usage: -typetofind MSBuild`
+
+Values Allowed:
+
+- Solution -- searches for a *.sln file
+- Project -- searches for a *.sqlproj file
+- DacPac -- searches for a *.dacpac file
+- PublishProfile -- searches for a *.publish.xml file
+- DTSPac -- searches for a *.dtspac file
+
+*-rootpath (String) - Mandatory: True*
+
+`Usage: -SQLPackagePath C:\yourpath\`
+
 #### Usage
 
+```Powershell
+Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind <typetofind> -rootpath <path to search from>
+```
+
 #### Examples
+
+Search for both MSBuild and SQLPackage from c:\users
+```Powershell
+Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Both -rootpath c:\users
+```
 
 ----
 
