@@ -94,6 +94,7 @@ A kicker script is recommended for orchestrating your pipeline (if you need help
 ```Powershell
 git clone https://github.com/tsteenbakkers/MSSQL-CICD-Helper.git
 ```
+or download a specific release from [Releases page][ReleasesPageUrl]
 
 ### Importing the module
 
