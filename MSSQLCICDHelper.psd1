@@ -74,7 +74,6 @@ FunctionsToExport = @(
     'Get-MSSQLCICDHelperFiletoBuildDeploy',
     'Invoke-MSSQLCICDHelperMSBuild',
     'Invoke-MSSQLCICDHelperSQLPackage'
-    #'MSSQL-CICD-Tools'
     )
 
 # Cmdlets to export from this module
