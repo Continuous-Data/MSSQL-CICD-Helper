@@ -22,7 +22,7 @@ MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Soluti
 
 ## Features
 
-- find any sln, sqlproject, dacpac, publish XML or dtspac on a runner / container based on the pulled sourcecode
+- Find any \*.sln, \*.sqlproject, \*.dacpac, \*.publish.XML or \*.dtspac on a runner / container based on the pulled sourcecode (so no need to worry about hard-coded paths)
 - run MSBuild for SQLProjects / SLN files (with above mentioned auto-discovery)
   - supports SSDT, SSIS, SSAS, SSRS solutions (\*.sln files)
   - Supports SSDT Projects (\*.sqlproj files)
@@ -39,12 +39,17 @@ MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Soluti
 
 - Add example kicker script
 - Add example CI / Pipeline scripts
+  - Gitlab
+  - Jenkins
+  - TeamCity
+  - VSTS/TFS
 - Add ability to use Windows Credentials instead of SQL Authentication.
 - Enable deploying SSIS packages
 - Enable deploying SSAS packages
 - Enable deploying SSRS packages
-- Test Automation (such as T-SQLT)
-- Support for Azure SQL Database (it does support Azure VMs with SQL installed on it)
+- Enable deploying Azure Data Factory code
+- Test Automation (such as [T-SQLT](http://tsqlt.org/))
+- Support for Azure SQL Database / Datawarehouse (it does support Azure VMs with SQL installed on it)
 - Maintaining / exporting dacpac prior to deploy
 - Support for saving environments for deploying (which you should do in your CI system if possible)
 - Code improvement / refactoring / cleaning up
@@ -58,7 +63,7 @@ The following CI systems were tested and are supported:
 - [Teamcity](https://www.jetbrains.com/teamcity/)
 - [TFS / VSTS](https://www.visualstudio.com/team-services/)
 
-Please let me know if you have this in place in another CI system so I can add it to the list!
+Please [let me know](MSSQL-CICD-Helper@protonmail.com) if you have this module in place in another CI system so I can add it to the list!
 
 ## Background
 
@@ -68,10 +73,13 @@ One of the challenges I faced was when we switched CI systems and having to chan
 
 # Support / Contribution
 
-If you want added features or find an issue please let me know by raising an issue on github. You are welcome to contribute if you have additional features or want to refactor. 
-By no means I am a senior Powershell programmer so please point me towards good code convention if you feel my code lacks in some kind.
+If you want features added or find an issue please let me know by raising an issue on github. You are welcome to contribute if you have additional features or want to refactor. Pull requests are welcome!
 
-also some help in automated testing would be helpful (pester etc.)
+By no means am I a experienced Powershell programmer so please point me towards good code convention if you feel my code lacks in some kind. I am eager to learn to improve my code.
+
+Also i'd like some help in automated Powershell testing (pester etc.). So if you can and want to help please let me know!
+
+You can always contact me in regards of this repo on MSSQL-CICD-Helper@protonmail.com
 
 ----
 
@@ -79,15 +87,15 @@ also some help in automated testing would be helpful (pester etc.)
 
 ## Prerequisites
 
-In order for this module to work, your SQL Data products must be maintained / developed in Visual Studio 2017 (previously known as SSDT / SQL Server Data Tools). DDL definitions must be defined in a solution (\*.sln) containing one or more Projects (\*.sqlproj) files. 
+In order for this module to work, your SQL Data products must be maintained / developed in Visual Studio (previously known as SSDT / SQL Server Data Tools). DDL definitions must be defined in a solution (\*.sln) containing one or more Projects (\*.sqlproj) files.
 
-Obviously for best results a true CI system as mentioned aboved should be used alongside this module. However the module can be used on its own for starting out companies. Depending on your architecture a seperate packaging / deployment tool (like octopusdeploy) is advised.
+Obviously for best results a true CI system as mentioned aboved should be used alongside this module. However the module can be used on its own for starting out companies. Depending on your architecture a seperate packaging / deployment tool (like [Octopus Deploy](https://octopus.com/)) is advised.
 
 ## Download and install
 
-Either download this repo and save it with your source code or make a git clone at runtime within your pipeline (especially needed when running in docker containers). 
+Either download this repo and save it with your source code (can be in or outside your solution) or make a git clone at runtime within your pipeline (especially needed when running in docker containers). 
 
-A kicker script is recommended for orchestrating your pipeline (if you need help with this contact me.)
+A kicker script is recommended for orchestrating your pipeline (Not yet added, if you need help with this [contact](MSSQL-CICD-Helper@protonmail.com) me.)
 
 ### Downloading / Cloning the module
 
@@ -110,13 +118,17 @@ Import-Module <path>\MSSQL-CICD-Helper\MSSQLCICDHelper.PSD1
 
 if you add a -verbose switch it will also display all the functions exported
 
-be advised that if you use a CI system or Docker that you need to clone / import at each seperate build.
+be advised that if you use a CI system or Docker that you need to clone / import at each seperate build (this is why you want a kicker script :) ).
 
 ----
 
 # Configuration
 
-Configuration is needed one time at first execution (or when using docker you need to inject your config file after you generate it first). using [Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration) will let you store the filepath to SQLPackage.exe and MSBuild.exe
+MSSQL-CICD-Helper uses a config file which does not exist when you first install / import the module.
+
+In order to use the functions we need to generate and save a config file. 
+
+if you use [Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration) it will let you store the filepath to SQLPackage.exe and MSBuild.exe for later use.
 
 example:
 
@@ -134,7 +146,11 @@ C:\Users\<user>\AppData\Roaming\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml
 
 You don't need to store both executables if you only want to partial functionality but it is advised to store them both. After you've saved the configuration you are set to go.
 
-If you are unsure where either MSBuild / SQLPackage is located on your system (or on the runners system) you can use [Get-MSSQLCICDHelperPaths](#get-mssqlcicdhelperpaths). To review your saved config file use [Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration).
+If you are unsure where either MSBuild / SQLPackage is located on your system (or on the runners system) you can use [Get-MSSQLCICDHelperPaths](#get-mssqlcicdhelperpaths). 
+
+To review your saved config file use [Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration).
+
+*Note: when using docker (or any non persistant tooling) you need to inject your config file after you generate it with below function. This is not covered by this readme but i am willing to help. just [contact](MSSQL-CICD-Helper@protonmail.com) me!*
 
 ----
 
