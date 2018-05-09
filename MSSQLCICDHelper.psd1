@@ -60,7 +60,7 @@ Description = 'Set of Powershell functions to aid in CI/CD processes to build wi
 # TypesToProcess = @()
 
 # Format files (.ps1xml) to be loaded when importing this module
-FormatsToProcess = @('MSSQLCICDHelper.Format.ps1xml')
+#FormatsToProcess = @('MSSQLCICDHelper.Format.ps1xml')
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 # NestedModules = @()
