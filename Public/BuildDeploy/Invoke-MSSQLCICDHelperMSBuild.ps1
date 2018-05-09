@@ -233,6 +233,8 @@ function Invoke-MSSQLCICDHelperMSBuild {
             $CommandtoExecute = "Invoke-MSBuild -Path $($filename.FullName) -logdirectory $($logbase)"
             
             $CommandtoExecute += " -KeepBuildLogOnSuccessfulBuilds"
+            
+            $CommandtoExecute += " -MsBuildParameters ""$($MSBuildArguments)"""
 
             if ($InvokeMSBuildParameters){
                 $CommandtoExecute += " $($InvokeMSBuildParameters)"
