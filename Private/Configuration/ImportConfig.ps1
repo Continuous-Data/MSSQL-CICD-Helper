@@ -7,6 +7,7 @@ Function ImportConfig {
 .EXAMPLE
     ImportConfig
 #>
+    $currentversion = CurrentVersion
 
     if ( $IsWindows -or ( [version]$PSVersionTable.PSVersion -lt [version]"5.99.0" ) ) {
         $ConfigFile = "{0}\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml" -f $env:appdata
@@ -17,6 +18,7 @@ Function ImportConfig {
     }
     if (Test-Path $ConfigFile) {
         Import-Clixml $ConfigFile
+        
 
     } else {
         Write-Warning 'No saved configuration information found. Run Save-MSSQL-CICD-HelperConfiguration.'
