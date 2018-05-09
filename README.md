@@ -14,7 +14,7 @@
 # Introduction
 
 This repo contains a powershell module which helps and aids in CI / CD processes specifically for MSSQL (Microsoft SQL Server). 
-The module was born because not every CI / CD tool supports the quirks often presented when trying to implement CI / CD in combination with SQL Server Projects (more on this in Background). 
+The module was born because not every CI / CD tool supports the quirks often presented when trying to implement CI / CD in combination with SQL Server Projects (more on this in Background).
 
 The main issue is that most current CI systems do not help in discovery of files to build / deploy which makes it difficult to automate building processes because your pipeline code needs to be customized for each solution / Database which you want running in your pipeline.
 
@@ -91,10 +91,14 @@ A kicker script is recommended for orchestrating your pipeline (if you need help
 
 ### Downloading / Cloning the module
 
-```Powershell
-git clone https://github.com/tsteenbakkers/MSSQL-CICD-Helper.git
+```git
+$ git clone https://github.com/tsteenbakkers/MSSQL-CICD-Helper.git
 ```
-or download a specific release from [Releases page][ReleasesPageUrl]
+or download / clone a specific release from [Releases page](https://github.com/tsteenbakkers/MSSQL-CICD-Helper/releases)
+
+```git
+$ git clone https://github.com/tsteenbakkers/MSSQL-CICD-Helper.git --branch v1.0.0
+```
 
 ### Importing the module
 
