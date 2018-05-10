@@ -31,7 +31,7 @@ Function Save-MSSQLCICDHelperConfiguration {
     Will Store c:\SQLPackage.Exe as the configured path for SQLPackage
     
     .LINK
-	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools
+	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Helper
 
 	.NOTES
 	Name:   MSSQLCICDHelper

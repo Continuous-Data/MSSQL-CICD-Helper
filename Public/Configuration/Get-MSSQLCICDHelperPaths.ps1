@@ -38,7 +38,7 @@ Function Get-MSSQLCICDHelperPaths {
     Will Search C:\ for MSBuild.exe and SQLPackage.exe.
     
     .LINK
-	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools
+	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Helper
 
 	.NOTES
 	Name:   MSSQLCICDHelper

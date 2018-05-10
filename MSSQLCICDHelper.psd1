@@ -114,10 +114,10 @@ PrivateData = @{
         )
 
         # A URL to the license for this module.
-        LicenseUri = 'https://github.com/tsteenbakkers/MSSQL-CICD-Tools/blob/master/LICENSE'
+        LicenseUri = 'https://github.com/tsteenbakkers/MSSQL-CICD-Helper/blob/master/LICENSE'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/tsteenbakkers/MSSQL-CICD-Tools'
+        ProjectUri = 'https://github.com/tsteenbakkers/MSSQL-CICD-Helper'
 
         # A URL to an icon representing this module.
         # IconUri = ''

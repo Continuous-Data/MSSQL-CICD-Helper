@@ -13,7 +13,7 @@ function Get-MSSQLCICDHelperConfiguration  {
     Get-MSSQLCICDHelperConfiguration
     
     .LINK
-	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools
+	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Helper
 
 	.NOTES
 	Name:   MSSQLCICDHelper
