@@ -3,7 +3,23 @@
 
 # MSSQL-CICD-Helper
 
-[![GitHub release](https://img.shields.io/github/release/tsteenbakkers/MSSQL-CICD-Helper.svg?style=plastic)](https://github.com/tsteenbakkers/MSSQL-CICD-Helper/releases)
+[![release badge]][release]
+[![licence badge]][licence]
+[![stars badge]][stars]
+[![forks badge]][forks]
+[![issues badge]][issues]
+
+[licence badge]:https://img.shields.io/badge/license-MIT-blue.svg
+[stars badge]:https://img.shields.io/github/stars/tsteenbakkers/MSSQL-CICD-Helper.svg
+[forks badge]:https://img.shields.io/github/forks/tsteenbakkers/MSSQL-CICD-Helper.svg
+[issues badge]:https://img.shields.io/github/issues/tsteenbakkers/MSSQL-CICD-Helper.svg
+[release badge]:https://img.shields.io/github/release/tsteenbakkers/MSSQL-CICD-Helper.svg
+
+[licence]:https://github.com/ktaranov/sqlserver-kit/blob/master/LICENSE.md
+[stars]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper.svg/stargazers
+[forks]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper.svg/network
+[issues]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper.svg/issues
+[release]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper.svg/releases
 
 - [Introduction](#introduction)
 - [Support / Contribution](#support--contribution)
