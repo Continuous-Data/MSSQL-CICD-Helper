@@ -4,7 +4,7 @@
 # MSSQL-CICD-Helper
 
 
-[![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg?style=plastic)](https://github.com/tsteenbakkers/MSSQL-CICD-Helper/releases)
+[![GitHub release](https://img.shields.io/github/release/tsteenbakkers/MSSQL-CICD-Helper.svg?style=plastic)](https://github.com/tsteenbakkers/MSSQL-CICD-Helper/releases)
 
 
 
