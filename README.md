@@ -14,11 +14,15 @@
 # Introduction
 
 This repo contains a powershell module which helps and aids in CI / CD processes specifically for MSSQL (Microsoft SQL Server). 
-The module was born because not every CI / CD tool supports the quirks often presented when trying to implement CI / CD in combination with SQL Server Projects (more on this in Background).
+The module was born because not every CI / CD tool supports the quirks often presented when trying to implement CI / CD in combination with SQL Server Projects.
 
-The main issue is that most current CI systems do not help in discovery of files to build / deploy which makes it difficult to automate building processes because your pipeline code needs to be customized for each solution / Database which you want running in your pipeline.
+The main issue is that most current CI systems do not help in discovery of files to build / deploy which makes it difficult to automate building / deploy processes because your pipeline code needs to be customized for each Solution / Database which you want running in your pipeline.
+This is most notable when first starting to work with CI systems and having to adjust your pipeline code for each database which is not according to the philosophy of make once, use many. It clutters your CI system and makes it less manageble.
+Also this is notable when switching from one CI system to another. Something which I often have to do at customers.
 
-MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Solution is configured. Something i found which would often differ in each project / solution (definitely not a best practice ^^)
+As such I decided to make a powershell module / wrapper which is versatile and exchangable when you want to work with CI systems and MSSQL databases.
+
+MSSQL-CICD-Helper helps you automate further by not worrying how your SQL Solution is configured. Something i found which would often differ in each project / solution (definitely not a best practice ^^).
 
 ## Features
 
@@ -65,22 +69,23 @@ The following CI systems were tested and are supported:
 
 Please [let me know](MSSQL-CICD-Helper@protonmail.com) if you have this module in place in another CI system so I can add it to the list!
 
-## Background
-
-One of the challenges I faced was when we switched CI systems and having to change a lot of the pipeline code because of hardcoded references to either solution / dacpac files. having to change all these references broke code a lot and as such I decided to make a powershell module which is versatile and exchangable when you switch CI systems.
-
 ----
 
 # Support / Contribution
 
 If you want features added or find an issue please let me know by raising an issue on github. You are welcome to contribute if you have additional features or want to refactor. Pull requests are welcome!
 
-By no means am I a experienced Powershell programmer so please point me towards good code convention if you feel my code lacks in some kind. I am eager to learn to improve my code.
+By no means am I an experienced Powershell programmer so please point me towards good code convention if you feel my code lacks in some kind. I am eager to learn to improve my code.
 
 Also i'd like some help in automated Powershell testing (pester etc.). So if you can and want to help please let me know!
 
 You can always contact me in regards of this repo on MSSQL-CICD-Helper@protonmail.com
 
+# Limited Waranty
+
+CODE HERE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+**[⬆ back to top](#mssql-cicd-helper)**
 ----
 
 # Installation
@@ -93,7 +98,7 @@ Obviously for best results a true CI system as mentioned aboved should be used a
 
 ## Download and install
 
-Either download this repo and save it with your source code (can be in or outside your solution) or make a git clone at runtime within your pipeline (especially needed when running in docker containers). 
+Either download this repo and save it with your source code (can be in or outside your solution) or make a (forked) git clone at runtime within your pipeline (especially needed when running in docker containers).
 
 A kicker script is recommended for orchestrating your pipeline (Not yet added, if you need help with this [contact](MSSQL-CICD-Helper@protonmail.com) me.)
 
@@ -110,15 +115,15 @@ $ git clone https://github.com/tsteenbakkers/MSSQL-CICD-Helper.git --branch v1.0
 
 ### Importing the module
 
-after cloning (or if you store it with your database code) you need to import this module in order to make the functions available:
+After cloning (or if you store it with your database code) you need to import this module in order to make the functions available:
 
 ```Powershell
 Import-Module <path>\MSSQL-CICD-Helper\MSSQLCICDHelper.PSD1
 ```
 
-if you add a -verbose switch it will also display all the functions exported
+If you add a -verbose switch it will also display all the functions exported
 
-be advised that if you use a CI system or Docker that you need to clone / import at each seperate build (this is why you want a kicker script :) ).
+Be advised that if you use a CI system or Docker that you need to clone / import at each seperate build (this is why you want a kicker script :) ).
 
 ----
 
@@ -128,7 +133,7 @@ MSSQL-CICD-Helper uses a config file which does not exist when you first install
 
 In order to use the functions we need to generate and save a config file. 
 
-if you use [Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration) it will let you store the filepath to SQLPackage.exe and MSBuild.exe for later use.
+If you use [Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration) it will let you store the filepath to SQLPackage.exe and MSBuild.exe for later use.
 
 example:
 
@@ -146,11 +151,11 @@ C:\Users\<user>\AppData\Roaming\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml
 
 You don't need to store both executables if you only want to partial functionality but it is advised to store them both. After you've saved the configuration you are set to go.
 
-If you are unsure where either MSBuild / SQLPackage is located on your system (or on the runners system) you can use [Get-MSSQLCICDHelperPaths](#get-mssqlcicdhelperpaths). 
+If you are unsure where either MSBuild / SQLPackage is located on your system (or on the runners system) you can use [Get-MSSQLCICDHelperPaths](#get-mssqlcicdhelperpaths).
 
-To review your saved config file use [Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration).
+To review your saved config file use [Get-MSSQLCICDHelperConfiguration](#get-mssqlcicdhelperconfiguration). You can also use this function to discover the path where MSSQL-CICD-Helper stores its config so you know where to inject a pre-made config file.
 
-*Note: when using docker (or any non persistant tooling) you need to inject your config file after you generate it with below function. This is not covered by this readme but i am willing to help. just [contact](MSSQL-CICD-Helper@protonmail.com) me!*
+*Note: when using docker (or any non persistant tooling) you need to inject your config file after you generate it with [Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration). This is not covered by this readme but i am willing to help. just [contact](MSSQL-CICD-Helper@protonmail.com) me!*
 
 ----
 
