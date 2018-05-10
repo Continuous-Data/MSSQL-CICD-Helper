@@ -27,7 +27,7 @@
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Functions](#functions)
-- [Example CI Scripts](#example--ci--scripts)
+- [Example CI Scripts](#example-ci-scripts)
 
 ----
 
