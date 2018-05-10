@@ -69,6 +69,8 @@ The following CI systems were tested and are supported:
 
 Please [let me know](MSSQL-CICD-Helper@protonmail.com) if you have this module in place in another CI system so I can add it to the list!
 
+[⬆ back to top](#mssql-cicd-helper)
+
 ----
 
 # Support / Contribution
@@ -81,11 +83,13 @@ Also i'd like some help in automated Powershell testing (pester etc.). So if you
 
 You can always contact me in regards of this repo on MSSQL-CICD-Helper@protonmail.com
 
+[⬆ back to top](#mssql-cicd-helper)
+
 # Limited Waranty
 
 CODE HERE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-**[⬆ back to top](#mssql-cicd-helper)**
+[⬆ back to top](#mssql-cicd-helper)
 ----
 
 # Installation
@@ -125,6 +129,8 @@ If you add a -verbose switch it will also display all the functions exported
 
 Be advised that if you use a CI system or Docker that you need to clone / import at each seperate build (this is why you want a kicker script :) ).
 
+[⬆ back to top](#mssql-cicd-helper)
+
 ----
 
 # Configuration
@@ -157,6 +163,8 @@ To review your saved config file use [Get-MSSQLCICDHelperConfiguration](#get-mss
 
 *Note: when using docker (or any non persistant tooling) you need to inject your config file after you generate it with [Save-MSSQLCICDHelperConfiguration](#save-mssqlcicdhelperconfiguration). This is not covered by this readme but i am willing to help. just [contact](MSSQL-CICD-Helper@protonmail.com) me!*
 
+[⬆ back to top](#mssql-cicd-helper)
+
 ----
 
 # Functions
@@ -172,6 +180,8 @@ To review your saved config file use [Get-MSSQLCICDHelperConfiguration](#get-mss
 - [Get-MSSQLCICDHelperFiletoBuildDeploy](#get-mssqlcicdhelperfiletobuilddeploy)
 - [Invoke-MSSQLCICDHelperMSBuild](#invoke-mssqlcicdhelpermsbuild)
 - [Invoke-MSSQLCICDHelperSQLPackage](#invoke-mssqlcicdhelpersqlpackage)
+
+[⬆ back to top](#mssql-cicd-helper)
 
 ----
 
@@ -207,6 +217,7 @@ Save just MSBuild path:
 Save-MSSQLCICDHelperConfiguration -MSBuildPath C:\yourpath\MSBuild.exe
 ```
 
+[⬆ back to function overview](#functions)
 
 ----
 
@@ -229,6 +240,7 @@ Return saved configuration:
 ```Powershell
 Get-MSSQLCICDHelperConfiguration
 ```
+[⬆ back to function overview](#functions)
 
 ----
 
@@ -262,6 +274,7 @@ Search for both MSBuild and SQLPackage from c:\users
 ```Powershell
 Get-MSSQLCICDHelperPaths -typetofind Both -rootpath c:\users
 ```
+[⬆ back to function overview](#functions)
 
 ----
 
@@ -297,6 +310,7 @@ Search for both MSBuild and SQLPackage from c:\users
 ```Powershell
 Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Both -rootpath c:\users
 ```
+[⬆ back to function overview](#functions)
 
 ----
 
@@ -387,6 +401,7 @@ Use [Invoke-MSBuild](https://github.com/deadlydog/Invoke-MsBuild) with autodisco
 ```Powershell
 Invoke-MSSQLCICDHelperMSBuild -UseInvokeMSBuildModule -InvokeMSBuildParameters '-ShowBuildOutputInNewWindow -PromptForInputBeforeClosing -AutoLaunchBuildLogOnFailure'
 ```
+[⬆ back to function overview](#functions)
 
 ----
 
@@ -530,3 +545,7 @@ Auto discover dacpac and use manual credentials for deployment. Delete log files
 ```Powershell
 Invoke-MSSQLCICDHelperSQLPackage -AdditionalArguments '/TargetTimeout:600' -TargetServername myazure.northeurope.cloudapp.azure.com -TargetDBName myawesomedb -TargetUsername DeployServiceAccount -Targetpassword My_Sup3rStr0nPW!
 ```
+
+[⬆ back to function overview](#functions)
+
+[⬆ back to top](#mssql-cicd-helper)
