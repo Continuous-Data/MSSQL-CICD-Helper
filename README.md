@@ -3,6 +3,9 @@
 
 # MSSQL-CICD-Helper
 
+![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg?style=plastic)
+
+
 - [Introduction](#introduction)
 - [Support / Contribution](#support--contribution)
 - [Installation](#installation)
