@@ -27,6 +27,7 @@
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Functions](#functions)
+- [Example CI Scripts](#example--ci--scripts)
 
 ----
 
@@ -569,5 +570,36 @@ Invoke-MSSQLCICDHelperSQLPackage -AdditionalArguments '/TargetTimeout:600' -Targ
 ```
 
 [⬆ back to function overview](#functions)
+
+# Example CI Scripts
+
+### Work in Progress!!!
+
+In the [Example_Scripts](https://github.com/tsteenbakkers/MSSQL-CICD-Helper/tree/master/Example_Scripts) folder you will find the general CICD_Kicker.ps1 script and some pipeline scripts for various CI systems. all CI folders will have a Non-Docker and a Docker variant depending on your setupt
+
+#### CICD-Kicker.ps1
+
+This script will do the following:
+
+- test for local availability of the MSSQL-CICD-Helper module.
+- If it is not available it will test for a git installation and pull the MSSQL-CICD-Helper module
+- Import the MSSQL-CICD-Helper module
+- Depending on function start building / deploying your Database project.
+
+Since it is an example script it is fairly simple and will accept two functions:
+
+- build (discover a local \*.sln file and MSBuild it with -verbose -Keeplogfile - Hidden)
+- deploy (discover a local \*.dacpac file and deploy it with passed input parameters as target connection.)
+
+Adjust to your situation!
+
+#### Gitlab CI
+
+provided is a non-docker script which has 2 stages:
+
+- build
+- deploy
+
+Both stages will call the CICD-Kicker script with aforementioned functions and passed input variables from your CI configuration.
 
 [⬆ back to top](#mssql-cicd-helper)
