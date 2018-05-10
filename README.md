@@ -15,7 +15,7 @@
 [issues badge]:https://img.shields.io/github/issues/tsteenbakkers/MSSQL-CICD-Helper.svg
 [release badge]:https://img.shields.io/github/release/tsteenbakkers/MSSQL-CICD-Helper.svg
 
-[licence]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/master/LICENSE.md
+[licence]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/blob/master/LICENSE.md
 [stars]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/stargazers
 [forks]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/network
 [issues]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/issues
