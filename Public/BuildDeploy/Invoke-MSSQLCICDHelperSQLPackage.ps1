@@ -1,161 +1,221 @@
 function Invoke-MSSQLCICDHelperSQLPackage {
     <#
         .SYNOPSIS
-        Builds the given Visual Studio solution or project file using MsBuild.
+        publishes a given DacPac file to specified target.
     
         .DESCRIPTION
-        Executes the MsBuild.exe tool against the specified Visual Studio solution or project file.
-        Returns a hash table with properties for determining if the build succeeded or not, as well as other information (see the OUTPUTS section for list of properties).
+        Executes the SQLPackage.exe tool against the specified DacPac file. If no DacPac file is specified the tool will search for one from current directory (root of the Source Code.)
+        Returns a hash table with properties for determining if the publish succeeded or not, as well as other information (see the OUTPUTS section for list of properties).
     
         .PARAMETER filename
-        The path of the Visual Studio solution or project to build (e.g. a .sln or .csproj file). 
+        The path including file of the DacPac file to publish (e.g. a .dacpac file). 
         If left empty the Module will search Recursively for the nearest Solution file where the basepath will the path where the script is Ran (not to be confused with script location)
     
-        .PARAMETER MSBuildArguments
-        Additional parameters to pass to the MsBuild command-line tool. This can be any valid MsBuild command-line parameters except for the path of
-        the solution/project to build.
+        .PARAMETER AdditionalArguments
+        Additional parameters to pass to the SQLPackage command-line tool. This can be any valid sqlpackage command-line parameter(s) except for the ones mentioned below.
     
-        See http://msdn.microsoft.com/en-ca/library/vstudio/ms164311.aspx for valid MsBuild command-line parameters.
-    
+        See https://msdn.microsoft.com/library/hh550080(vs.103).aspx#Publish%20Parameters,%20Properties,%20and%20SQLCMD%20Variables for valid SQLPackage command-line parameters.
+
+        Please note that the following parameters are already used / reserverd and should not be used:
+
+        /action
+        /SourceFile
+        /Profile
+        /TargetConnectionString
+        /TargetServerName
+        /TargetDatabaseName
+        /TargetUsername
+        /TargetPassword
+        
+        .PARAMETER logfilepath
+        Determines the basepath where logfileoutput will be stored. If left empty the directory will be used where the script is ran.
+        
+        .PARAMETER TargetConnectionString
+        Identifies the Connectionstring to be used for the Target. Will overrule any other $Target<xxx>parameter.
+
+        .PARAMETER PublishProfile
+        Identifies the filepath for a Publishprofile to be used. 
+        If used in conjunction with a targetconnectionstring or any of the other target variables the settings in the Publish profile will be overuled as per default function of SQLPackage. 
+        Depending on your setup you will need to use custom credentials next to using a publishing profile.
+
+        .PARAMETER DetectPublishProfile
+        Switch to use a publishing profile and have the script detect it. Publishing profiles should always be named *.publish.xml in order to be detected.
+        
+        .PARAMETER TargetServerName
+        Identifies the Server to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
+        
+        .PARAMETER TargetDBName
+        Identifies the Database Name to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
+        
+        .PARAMETER TargetUserName
+        Identifies the Username to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
+        
+        .PARAMETER TargetPassword
+        Identifies the password to be used for the Target. If $TargetConnectionString is used this parameter will be overruled by the connectionstring.
+        
         .PARAMETER hidden
-        Switch to use when output from the MSBuild command line tool needs to be hidden instead of shown. 
-        When using the Invoke-MSBuild feature you need to explicitly tell it to show info with "-ShowBuildOutputInCurrentWindow" or something similar given to Parameter -InvokeMSBuildParameters
-    
+        Switch to use when output from the command line tool needs to be hidden instead of shown.
     
         .PARAMETER keeplogfiles
-        Switch to specify that log files should be deleted. only applies on successfull builds.
+        Switch to specify that log files should be deleted. only applies on successfull output.
     
-    
-        .PARAMETER UseInvokeMSBuildModule
-        Instead of using the MSBuildfeatures from MSSQL-CICD-Helper the more advanced Invoke-MSBuild can be called.
-    
-        .PARAMETER InvokeMSBuildParameters
-        This Parameter is used as a string to pass additional parameters to the Invoke-MSBuild function.
-        Default we pass -Path, -LogDirectory and -KeepBuildLogOnSuccessfulBuilds so keep away from those.
     
         .OUTPUTS
-        a hashtable with the following details is returned (whether or not using Invoke-MSBuild as the executor):
+        a hashtable with the following details is returned:
     
-        BuildSucceeded = $true if the build passed, $false if the build failed, and $null if we are not sure.
-        LogFilePath = The path to the build's log file.
-        BuildErrorsLogFilePath = The path to the build's error log file.
-        FiletoBuild = The item that MsBuild ran against.
-        CommandUsedToBuild = The full command that was used to invoke MsBuild. This can be useful for inspecting what parameters are passed to MsBuild.exe.
-        Message = A message describing any problems that were encoutered by Invoke-MsBuild. This is typically an empty string unless something went wrong.
-        MsBuildProcess = The process that was used to execute MsBuild.exe.
-        Duration = The amount of time the build took to complete, represented as a TimeSpan.
-    
-        .EXAMPLE
+        Succeeded = $true if the process Succeeded, $false if the Process failed, and $null if we are not sure.
+        LogFilePath = The path to the process log file.
+        Logfile = filename of logfile which was used in the process.
+        ErrorLogFilePath = The path to the Process error log file.
+        ErrorLogfile = filename of the errorlogfile.
+        FiletoProcess = The item that SQLPackage ran against.
+        CommandUsed = The full command that was used to invoke SQLPackage. This can be useful for inspecting what parameters are passed to SQLPackage.exe.
+        Message = A message describing any problems that were encoutered by the process. This is typically an empty string unless something went wrong.
+        Duration = The amount of time the process took to complete, represented as a TimeSpan.
         
-        Invoke-MSSQLCICDHelperMSBuild
-        
-        Will Run Invoke-MSSQLCICDHelperMSBuild with the default settings
-        Filename = Autodetect
-        Non hidden
-        Delete logfiles when successfull.
-        
-        .EXAMPLE
-        
-        Invoke-MSSQLCICDHelperMSBuild -Verbose
-        
-        Will Run Invoke-MSSQLCICDHelperMSBuild with the default settings but show verbose output. (this goes for other CMDLetbindings aswell)
-        Filename = Autodetect
-        Non hidden
-        Delete logfiles when successfull.
     
         .EXAMPLE
         
-        Invoke-MSSQLCICDHelperMSBuild -filename <path to file to build>
+        Invoke-MSSQLCICDHelperSQLPackage -filename <path to file to publish> -TargetconnectionString -logfilepath c:\logs\builds
         
-        Will Run Invoke-MSSQLCICDHelperMSBuild with the default settings other than filename
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings other than filename and logfilepath
         Filename = given file
+        logfiles will be stored in c:\logs\builds\
         Non hidden
         Delete logfiles when successfull.
-    
+        Will use the designated Connection string.
+
         .EXAMPLE
         
-        Invoke-MSSQLCICDHelperMSBuild -KeepLogfiles -hidden
+        Invoke-MSSQLCICDHelperSQLPackage -Publishprofile C:\builds\<yourname>.publish.xml -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
         
-        Will Run Invoke-MSSQLCICDHelperMSBuild with not showing ouput and keeping logfiles when done.
-        Filename = Autodetect
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings
+        Filename = will search for a dacpac from the current directory.
+        will use the mentioned Publishing profile for non-credential settings
+        Non hidden
+        Delete logfiles when successfull.
+        Will use the mentioned credentials
+
+        .EXAMPLE
+        
+        Invoke-MSSQLCICDHelperSQLPackage -DetectPublishProfile
+        
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings
+        Filename = will search for a dacpac from the current directory.
+        Publishing profile will be detected from the current directory.
+        Non hidden
+        Delete logfiles when successfull.
+        Credentials are taken from the publishing profile.
+
+        .EXAMPLE
+        
+        Invoke-MSSQLCICDHelperSQLPackage -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
+        
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings
+        Filename = will search for a dacpac from the current directory.
+        Non hidden
+        Delete logfiles when successfull.
+        Will use the mentioned credentials
+
+        .EXAMPLE
+        
+        Invoke-MSSQLCICDHelperSQLPackage -KeepLogfiles -hidden -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
+        
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings
+        Filename = will search for a dacpac from the current directory.
         hidden
         Don't Delete logfiles when successfull.
+        Will use the mentioned credentials
+
+        .EXAMPLE
+        
+        Invoke-MSSQLCICDHelperSQLPackage -Verbose -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
+        
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with the default settings with added verbosity in it's output.
+        Filename = will search for a dacpac from the current directory.
+        Not hidden
+        Delete logfiles when successfull.
+        Will use the mentioned credentials
     
         .EXAMPLE
         
-        Invoke-MSSQLCICDHelperMSBuild -MSBuildArguments "t:build"
+        Invoke-MSSQLCICDHelperSQLPackage -AdditionalArguments "/TargetTimeout:600" -TargetServerName <local or azure machine> -TargetDBName myawesomedb -TargetUsername sa -targetPassword Very_Str0nPa$$W0rd01
         
-        Will Run Invoke-MSSQLCICDHelperMSBuild with additional msbuild parameters. 
-        See http://msdn.microsoft.com/en-ca/library/vstudio/ms164311.aspx for valid MsBuild command-line parameters.
-    
+        Will Run Invoke-MSSQLCICDHelperSQLPackage with additional SQLPackage parameters. 
+        See https://msdn.microsoft.com/library/hh550080(vs.103).aspx#Publish%20Parameters,%20Properties,%20and%20SQLCMD%20Variables for valid SQLPackage command-line parameters.
+
+        Please note that the following parameters are already used / reserverd and should not be used:
+
+        /action
+        /SourceFile
+        /Profile
+        /TargetConnectionString
+        /TargetServerName
+        /TargetDatabaseName
+        /TargetUsername
+        /TargetPassword
+
         Filename = Autodetect
         Non hidden
         Delete logfiles when successfull.
     
-        .EXAMPLE
-        
-        Invoke-MSSQLCICDHelperMSBuild -UseInvokeMSBuildModule
-        
-        Will Run Invoke-MSBuild with the default settings. The Following parameters will automatically be supplied to Invoke-MSBuild: -Path $filename (or auto-detect), -LogDirectory Parent of $filename and -KeepBuildLogOnSuccessfulBuilds because we want to have files to check.
-        Filename = Auto-Detect
-        Hidden by default
-        Delete logfiles when successfull.
-    
-        .EXAMPLE
-        
-        Invoke-MSSQLCICDHelperMSBuild -UseInvokeMSBuildModule -InvokeMSBuildParameters <params to pass in valid powershell formatting -paramname value>
-        
-        Will Run Invoke-MSBuild with the additional settings specified. keep away from below settings because we automatically feed them to the function and can't be specified twice
-        The Following parameters will automatically be supplied to Invoke-MSBuild: -Path $filename (or auto-detect), -LogDirectory Parent of $filename and -KeepBuildLogOnSuccessfulBuilds because we want to have files to check.
-    
-        See https://github.com/deadlydog/Invoke-MsBuild for valid optional Parameters.
-    
-        Filename = Auto-Detect
-        Hidden by default
-        Delete logfiles when successfull.
     
         .LINK
-        Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools
+        Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Helper
     
         .NOTES
         Name:   MSSQLCICDHelper
-        Author: Tobi Steenbakkers (partly based on the Invoke-MSBuild Module by Daniel Schroeder https://github.com/deadlydog/Invoke-MsBuild)
+        Author: Tobi Steenbakkers
         Version: 1.0.0
     #>
         
         [cmdletbinding()]
         param(
             [Parameter(Mandatory=$false,
-                   HelpMessage='Filename which should be used for building. If empty it will find the nearest Solution based on the directory it was invoked from.',
+                   HelpMessage='Filename which should be used for publish. If empty it will find the nearest Solution based on the directory it was invoked from.',
                    Position=0)]
             
             [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
             $filename,
 
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Provides additional Arguments. Example "/TargetTimeout:600"',
                    Position=0)]
             [Alias("Parameters","Params","P")]
             [ValidateNotNullOrEmpty()]
             [String] $AdditionalArguments,
 
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines the basepath where logfiles should be stored. if empty the directory where the script is running will be used',
                    Position=0)]
             [Alias("lfp")]
             [ValidateNotNullOrEmpty()]
             [String] $logfilepath,
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target for publishing based on a connectionstring',
                    Position=0)]
             [Alias("tconstr")]
             [ValidateNotNullOrEmpty()]
             [String] $TargetConnectionString,
 
+            [Parameter(Mandatory=$false,
+                   HelpMessage='input for path + filename for publishing profile to be used.',
+                   Position=0)]
+            [Alias("pr")]
+            [ValidateNotNullOrEmpty()]
+            [String] $PublishProfile,
+
+            [Parameter(Mandatory=$false,
+                   HelpMessage='Use this switch if you want to use a publish profile but have it detected by the software. Will override a given $PublishProfile.',
+                   Position=0)]
+            [Alias("detectpr")]
+            [ValidateNotNullOrEmpty()]
+            [Switch] $DetectPublishProfile,
+
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target Server for publishing',
                    Position=0)]
             [Alias("tsn", "TargetServer")]
             [ValidateNotNullOrEmpty()]
@@ -164,7 +224,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target Database for publishing',
                    Position=0)]
             [Alias("tdn","TargetDB")]
             [ValidateNotNullOrEmpty()]
@@ -173,7 +233,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target Username for publishing',
                    Position=0)]
             [Alias("tu", "TargetUser")]
             [ValidateNotNullOrEmpty()]
@@ -181,14 +241,14 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             
             
             [Parameter(Mandatory=$false,
-                   HelpMessage='Provides Build Arguments. Example /target:clean;build',
+                   HelpMessage='Determines Target Password for publishing',
                    Position=0)]
             [Alias("tp", "TargetPass")]
             [ValidateNotNullOrEmpty()]
             [String] $TargetPassWord,
 
             [Parameter(Mandatory=$false,
-                   HelpMessage='Switch to only retrieve the outcome of MSBuild. Hides the MSBuildProces on screen. When using Invoke-MSBuild the default setting for invoking the function will be hidden.',
+                   HelpMessage='Switch to only retrieve the outcome of sqlpackage. Hides the SQLPackage.exe on screen.',
                    Position=0)]
             #[Alias("Parameters","Params","P")]
             [ValidateNotNullOrEmpty()]
@@ -203,16 +263,15 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         )
         
         $result = @{}
-        $result.CommandUsedToBuild = [string]::Empty
-        $result.MsBuildProcess = $null
-        $result.BuildSucceeded = $null
+        $result.CommandUsed = [string]::Empty
+        $result.Succeeded = $null
         $result.Message = [string]::Empty
         $result.Duration = [TimeSpan]::Zero
         $result.LogFilePath = $null
         $result.LogFile = $null
         $result.ErrorLogFilePath = $null
         $result.ErrorLogFile = $null
-        $result.FiletoBuild = $null
+        $result.FiletoProcess = $null
 
         try{
     
@@ -228,27 +287,32 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             else{
                 $filename = Get-ChildItem $filename
             }
-            $filename 
+            #$filename 
             write-Verbose "The following file will be built: $($filename.Name) located in path $($filename.DirectoryName)"
             
+            if($DetectPublishProfile){
+                write-verbose "No filename given. Running Get-MSSQLCICDHelperFiletoBuildDeploy based to find the Solution in current script path $curdir"
+                $PublishProfile = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'PublishProfile' -RootPath $curdir | Get-ChildItem
+            }
             
             if($logfilepath){
-                $logfile = "$($logfilepath)"
+                $logfile = "{0}\$($filename.name).SQLPackage.log" -f $logfilepath
+                $errorlogfile = "{0}\$($filename.name).SQLPackage.errors.log" -f $logfilepath
             }else{
                 $logfile = "{0}\$($filename.name).SQLPackage.log" -f $curdir
+                $errorlogfile = "{0}\$($filename.name).SQLPackage.errors.log" -f $curdir
             }
-            $errorlogfile = "{0}\$($filename.name).SQLPackage.errors.log" -f $curdir
             $logbase = Split-Path -path $logfile -Parent
             $result.LogFilePath = $logbase
             $result.LogFile = $logfile
             $result.ErrorLogFilePath = $logbase
             $result.ErrorLogFile = $errorlogfile
-            $result.FiletoBuild = $filename.FullName 
+            $result.FiletoProcess = $filename.FullName 
 
             
             
                 
-            Write-Verbose "Constructing Command to build..."
+            Write-Verbose "Constructing Command to execute..."
 
             $arguments = "/k "" ""$($configfile['SQLPackageExe'])"""
 
@@ -261,23 +325,32 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
             }else{
                 if($TargetServerName -and $TargetDBName -and $TargetUserName -and $TargetPassWord){
+                    $shownarguments = "$arguments /tsn:$($targetservername) /tdn:$($TargetDBName) /tu:$($targetUsername) /tp:******"
                     $arguments += " /tsn:$($targetservername) /tdn:$($TargetDBName) /tu:$($targetUsername) /tp:$($targetPassword)"
-
+                    
                 }else{
-                    #Write-Error "Some of the target Credentials are not filled"
-                    #break;
+                    Write-Error "Some of the target Credentials are not filled"
+                    exit 1;
                 }
             }
 
+            if($PublishProfile){
+                $arguments += " /pr:""$($PublishProfile)"""
+                $shownarguments += " /pr:""$($PublishProfile)"""
+            }
+
             if($AdditionalArguments){
-                Write-Verbose "The following additional build arguments will be used: $AdditionalArguments"
+                Write-Verbose "The following additional arguments will be used: $AdditionalArguments"
                 $arguments += " $additionalarguments"
+                $shownarguments += " $additionalarguments"
             }
             
             #closing arguments with an exit statement to return to powershell
-            $arguments += " & Exit"" " 
-            Write-Verbose "The following Arguments will be used: $arguments"
-            $result.CommandUsedToBuild = "cmd.exe $arguments"
+            $arguments += " & Exit"" "
+            $shownarguments += " & Exit"" "
+
+            Write-Verbose "The following Arguments will be used: $shownarguments"
+            $result.CommandUsed = "cmd.exe $shownarguments"
             
             #constructing the process and the arguments to send:
             $pinfo = New-Object System.Diagnostics.ProcessStartInfo
@@ -306,20 +379,24 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
         }catch{
             $errorMessage = $_
-            $result.Message = "Unexpected error occurred while building ""$Path"": $errorMessage"
-            $result.BuildSucceeded = $false
+            $result.Message = "Unexpected error occurred while processing ""$Path"": $errorMessage"
+            $result.Succeeded = $false
             Write-Error ($result.Message)
             return $result
             EXIT 1;
         }
         
-        Write-verbose "MSBuild Started. Continue Checking results..."
+        Write-verbose "SQLPackage.exe Started. Continue Checking results..."
+        if(!$hidden){
+            
+            $output
+
+        }
         
-        $output
     
         if(!(Test-Path -Path $result.LogFile)){
-            $Result.BuildSucceeded = $false
-            $result.Message = "Could not find file at '$($result.LogFile)' unable to check for correct build."
+            $result.Succeeded = $false
+            $result.Message = "Could not find file at '$($result.LogFile)' unable to check for correct execution."
     
             Write-Error "$($result.message)"
             return $result
@@ -327,16 +404,16 @@ function Invoke-MSSQLCICDHelperSQLPackage {
         }
         
         
-        [bool] $buildReturnedSuccessfulExitCode = $p.ExitCode -eq 0
-        [bool] $buildOutputDoesNotContainFailureMessage = (((Select-String -Path $($result.LogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null) -or ((Select-String -Path $($result.LogFile) -Pattern "Initializing deployment (Failed)" -SimpleMatch) -eq $null))
-        [bool] $buildOutputDoesContainSuccesseMessage = (Select-String -Path $($result.LogFile) -Pattern "Successfully published database." -SimpleMatch -Quiet) -eq $true
+        [bool] $ProcessReturnedSuccessfulExitCode = $p.ExitCode -eq 0
+        [bool] $ProcessOutputDoesNotContainFailureMessage = (((Select-String -Path $($result.LogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null) -or ((Select-String -Path $($result.LogFile) -Pattern "Initializing deployment (Failed)" -SimpleMatch) -eq $null))
+        [bool] $ProcessOutputDoesContainSuccesseMessage = (Select-String -Path $($result.LogFile) -Pattern "Successfully published database." -SimpleMatch -Quiet) -eq $true
         
-        $buildSucceeded = $buildOutputDoesNotContainFailureMessage -and $buildReturnedSuccessfulExitCode -and $buildOutputDoesContainSuccesseMessage
+        $ProcessSucceeded = $ProcessOutputDoesNotContainFailureMessage -and $ProcessReturnedSuccessfulExitCode -and $ProcessOutputDoesContainSuccesseMessage
         
-        if ($buildSucceeded -eq $true){
+        if ($ProcessSucceeded -eq $true){
 
-            $result.BuildSucceeded = $true
-            $result.Message = "Build Passed Successfully"
+            $result.Succeeded = $true
+            $result.Message = "command executed Successfully"
     
             if (!$keeplogfiles)
                 {
@@ -350,15 +427,15 @@ function Invoke-MSSQLCICDHelperSQLPackage {
     
         }else{
 
-            $result.BuildSucceeded = $false
-            $result.Message = "Building ""$($result.FiletoBuild)"" Failed! Please check ""$($result.LogFile)"" "
+            $result.Succeeded = $false
+            $result.Message = "Processing ""$($result.FiletoProcess)"" Failed! Please check ""$($result.LogFile)"" "
             $result
             Write-Error "$($result.message)"
             EXIT 1;
 
         }
     
-        Write-Verbose "MSBuild passed. See results below..."
+        Write-Verbose "SQLPackage passed. See results below..."
         $result
         
     }

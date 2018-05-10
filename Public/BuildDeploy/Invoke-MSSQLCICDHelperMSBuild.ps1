@@ -115,7 +115,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
     Delete logfiles when successfull.
 
     .LINK
-	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools
+	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Helper
 
 	.NOTES
 	Name:   MSSQLCICDHelper
@@ -233,6 +233,8 @@ function Invoke-MSSQLCICDHelperMSBuild {
             $CommandtoExecute = "Invoke-MSBuild -Path $($filename.FullName) -logdirectory $($logbase)"
             
             $CommandtoExecute += " -KeepBuildLogOnSuccessfulBuilds"
+            
+            $CommandtoExecute += " -MsBuildParameters ""$($MSBuildArguments)"""
 
             if ($InvokeMSBuildParameters){
                 $CommandtoExecute += " $($InvokeMSBuildParameters)"

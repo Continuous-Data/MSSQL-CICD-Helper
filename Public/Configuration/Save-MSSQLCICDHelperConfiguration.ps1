@@ -31,7 +31,7 @@ Function Save-MSSQLCICDHelperConfiguration {
     Will Store c:\SQLPackage.Exe as the configured path for SQLPackage
     
     .LINK
-	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Tools
+	Project home: https://github.com/tsteenbakkers/MSSQL-CICD-Helper
 
 	.NOTES
 	Name:   MSSQLCICDHelper
@@ -60,6 +60,8 @@ Function Save-MSSQLCICDHelperConfiguration {
     Write-Output "debugging SQLPackageExePath $SQLPackageExePath"
 
     Write-Output "debugging SQLPackageExePath $MSBuildExePath"
+
+    $currentversion = CurrentVersion
 
     $PATHS = @{
         MSBuild = $MSBuildExePath
@@ -105,6 +107,7 @@ Function Save-MSSQLCICDHelperConfiguration {
         $Parameters = @{
             MSBuildExe = $PATHS['MSBuild'];
             SQLPackageExe = $PATHS['SQLPackage'];
+            Version = $currentversion
         }
         
         $ConfigFile = "$env:appdata\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml"
@@ -115,6 +118,7 @@ Function Save-MSSQLCICDHelperConfiguration {
         $Parameters = @{
             MSBuildExe = $PATHS['MSBuild'];
             SQLPackageExe = $PATHS['SQLPackage'];
+            Version = $currentversion
         }
         
         $ConfigFile = "{0}/.MSSQLCICDHelper/MSSQLCICDHelperConfiguration.xml" -f $HOME

@@ -60,7 +60,7 @@ Description = 'Set of Powershell functions to aid in CI/CD processes to build wi
 # TypesToProcess = @()
 
 # Format files (.ps1xml) to be loaded when importing this module
-FormatsToProcess = @('MSSQLCICDHelper.Format.ps1xml')
+#FormatsToProcess = @('MSSQLCICDHelper.Format.ps1xml')
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 # NestedModules = @()
@@ -74,7 +74,6 @@ FunctionsToExport = @(
     'Get-MSSQLCICDHelperFiletoBuildDeploy',
     'Invoke-MSSQLCICDHelperMSBuild',
     'Invoke-MSSQLCICDHelperSQLPackage'
-    #'MSSQL-CICD-Tools'
     )
 
 # Cmdlets to export from this module
@@ -115,10 +114,10 @@ PrivateData = @{
         )
 
         # A URL to the license for this module.
-        LicenseUri = 'https://github.com/tsteenbakkers/MSSQL-CICD-Tools/blob/master/LICENSE'
+        LicenseUri = 'https://github.com/tsteenbakkers/MSSQL-CICD-Helper/blob/master/LICENSE'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/tsteenbakkers/MSSQL-CICD-Tools'
+        ProjectUri = 'https://github.com/tsteenbakkers/MSSQL-CICD-Helper'
 
         # A URL to an icon representing this module.
         # IconUri = ''
