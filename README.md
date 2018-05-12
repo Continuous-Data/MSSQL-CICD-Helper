@@ -588,8 +588,8 @@ This script will do the following:
 
 Since it is an example script it is fairly simple and will accept two functions:
 
-- build (discover a local \*.sln file and MSBuild it with -verbose -Keeplogfile - Hidden)
-- deploy (discover a local \*.dacpac file and deploy it with passed input parameters as target connection.)
+- build (discover a local \*.sln file and MSBuild it with -verbose -Keeplogfile)
+- deploy (discover a local \*.dacpac file and deploy it with -verbose -Keeplogfile &  passed input parameters as target connection.)
 
 Adjust to your situation!
 
