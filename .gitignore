@@ -1,2 +1,4 @@
 
-/output/*
+/output/**
+
+localbuild\.ps1
