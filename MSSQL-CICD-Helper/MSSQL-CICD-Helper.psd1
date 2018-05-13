@@ -12,7 +12,7 @@
 RootModule = 'MSSQL-CICD-Helper.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.2'
+ModuleVersion = '0.0.4'
 
 # ID used to uniquely identify this module
 GUID = '2287837f-86ec-43ef-97a8-fee9f33a7c33'
@@ -66,15 +66,8 @@ Description = 'Set of Powershell functions to aid in CI/CD processes to build wi
 # NestedModules = @()
 
 # Functions to export from this module
-FunctionsToExport = @(
-    #'ImportConfig',
-    'Get-MSSQLCICDHelperPaths',
-    'Save-MSSQLCICDHelperConfiguration',
-    'Get-MSSQLCICDHelperConfiguration',
-    'Get-MSSQLCICDHelperFiletoBuildDeploy',
-    'Invoke-MSSQLCICDHelperMSBuild',
-    'Invoke-MSSQLCICDHelperSQLPackage'
-    )
+FunctionsToExport = @('
+ Get-MSSQLCICDHelperFiletoBuildDeploy Invoke-MSSQLCICDHelperMSBuild Invoke-MSSQLCICDHelperSQLPackage Get-MSSQLCICDHelperConfiguration Get-MSSQLCICDHelperPaths Save-MSSQLCICDHelperConfiguration')
 
 # Cmdlets to export from this module
 #CmdletsToExport = '*'

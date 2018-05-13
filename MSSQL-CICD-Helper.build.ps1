@@ -12,12 +12,12 @@ $script:HelpRoot = Join-Path $Output 'help'
 
 function TaskX($Name, $Parameters) {task $Name @Parameters -Source $MyInvocation}
 
-Task Default Clean, Build
+Task Default Clean, Build, PSScriptAnalyzer, UpdateSource
 #Task Default Clean, Build, Pester, UpdateSource, Publish
 Task Build CopyToOutput, BuildPSM1, BuildPSD1
 Task Pester Build, ImportModule, UnitTests, FullTests
 #Task Local Build, Pester, UpdateSource
-Task Local Build, UpdateSource
+Task Local Build, PSScriptAnalyzer, UpdateSource
 
 Task Clean {
 
@@ -72,8 +72,24 @@ Task CopyToOutput {
 }
 
 Task PSScriptAnalyzer {
+    # Inputs = 
+    # Outputs = 
+    # Jobs = {
+        $excludedRules = (
+        'PSAvoidUsingConvertToSecureStringWithPlainText', # For private token information
+        'PSAvoidUsingUserNameAndPassWordParams' # this refers to gitlab users and passwords
+        )
 
-    "placeholder for PSSCriptanalyze"
+        $saResults = Invoke-ScriptAnalyzer -Path $ModulePath -Severity Error -ExcludeRule $excludedRules -Recurse #-Verbose:$false   
+
+        $saResults | Select-Object SuggestedCorrections | Format-Custom | Out-File -LiteralPath "$output\PSScriptAnalyzer.txt" -Force
+
+        if ($saResults) {
+            $saResults | Format-Table
+            throw 'One or more Script Analyzer errors/warnings where found. Build cannot continue!'
+        }
+    # }
+
 }
 
 TaskX BuildPSM1 @{
@@ -120,8 +136,8 @@ TaskX BuildPSD1 @{
         Copy-Item "$source\$ModuleName.psd1" -Destination $ManifestPath
 
 
-        $functions = Get-ChildItem $ModuleName\Public -Recurse -include *.ps1 | Where-Object { $_.name -notmatch 'Tests'} | Select-Object -ExpandProperty basename
-        Set-ModuleFunctions -Name $ManifestPath -FunctionsToExport $functions
+        $functions =  Get-ChildItem $ModuleName\Public -Recurse -include *.ps1 | Where-Object { $_.name -notmatch 'Tests'} | Select-Object -ExpandProperty basename
+        Set-ModuleFunctions -Name $ManifestPath -FunctionsToExport "`n $functions"
 
         Write-Output "  Detecting semantic versioning"
 
@@ -214,29 +230,29 @@ Task ImportModule {
     }
 }
 
-Task Publish {
-    # Gate deployment
-    if (
-        $ENV:BHBuildSystem -ne 'Unknown' -and
-        $ENV:BHBranchName -eq "master" -and
-        $ENV:BHCommitMessage -match '!deploy|resolves\s+#\d+'
-    )
-    {
-        $Params = @{
-            Path  = $BuildRoot
-            Force = $true
-        }
+# Task Publish {
+#     # Gate deployment
+#     if (
+#         $ENV:BHBuildSystem -ne 'Unknown' -and
+#         $ENV:BHBranchName -eq "master" -and
+#         $ENV:BHCommitMessage -match '!deploy|resolves\s+#\d+'
+#     )
+#     {
+#         $Params = @{
+#             Path  = $BuildRoot
+#             Force = $true
+#         }
 
-        Invoke-PSDeploy @Verbose @Params
-    }
-    else
-    {
-        "Skipping deployment: To deploy, ensure that...`n" +
-        "`t* You are in a known build system (Current: $ENV:BHBuildSystem)`n" +
-        "`t* You are committing to the master branch (Current: $ENV:BHBranchName) `n" +
-        "`t* Your commit message includes !deploy (Current: $ENV:BHCommitMessage)"
-    }
-}
+#         Invoke-PSDeploy @Verbose @Params
+#     }
+#     else
+#     {
+#         "Skipping deployment: To deploy, ensure that...`n" +
+#         "`t* You are in a known build system (Current: $ENV:BHBuildSystem)`n" +
+#         "`t* You are committing to the master branch (Current: $ENV:BHBranchName) `n" +
+#         "`t* Your commit message includes !deploy (Current: $ENV:BHCommitMessage)"
+#     }
+# }
 
 TaskX CreateHelp @{
     Partial = $true
