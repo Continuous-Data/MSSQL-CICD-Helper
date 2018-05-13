@@ -12,7 +12,7 @@
 RootModule = 'MSSQL-CICD-Helper.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.0'
+ModuleVersion = '0.0.2'
 
 # ID used to uniquely identify this module
 GUID = '2287837f-86ec-43ef-97a8-fee9f33a7c33'
