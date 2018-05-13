@@ -145,7 +145,7 @@ $ git clone https://github.com/tsteenbakkers/MSSQL-CICD-Helper.git --branch v1.0
 After cloning (or if you store it with your database code) you need to import this module in order to make the functions available:
 
 ```Powershell
-Import-Module <path>\MSSQL-CICD-Helper\MSSQLCICDHelper.PSD1
+Import-Module <your own path to script root dir>\MSSQL-CICD-Helper\MSSQL-CICD-Helper\MSSQL-CICD-Helper.psd1
 ```
 
 If you add a -verbose switch it will also display all the functions exported
