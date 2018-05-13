@@ -6,7 +6,7 @@ $script:Output = Join-Path $BuildRoot output
 $script:Destination = Join-Path $Output $ModuleName
 $script:ModulePath = "$Destination\$ModuleName.psm1"
 $script:ManifestPath = "$Destination\$ModuleName.psd1"
-$script:Imports = ( 'private', 'public' )
+$script:Imports = ( 'Private', 'Public' )
 $script:TestFile = "$PSScriptRoot\output\TestResults_PS$PSVersion`_$TimeStamp.xml"
 $script:HelpRoot = Join-Path $Output 'help'
 
@@ -16,41 +16,44 @@ Task Default Clean, Build
 #Task Default Clean, Build, Pester, UpdateSource, Publish
 Task Build CopyToOutput, BuildPSM1, BuildPSD1
 Task Pester Build, ImportModule, UnitTests, FullTests
-Task Local Build, Pester, UpdateSource
+#Task Local Build, Pester, UpdateSource
+Task Local Build, UpdateSource
 
 Task Clean {
-    
+
     If (Test-Path $Output)
     {
         $null = Remove-Item $Output -Recurse -ErrorAction Ignore
+        #added sleep because TaskX NextPSGalleryVersion would not trigger when output is available but cleaned.
+        Start-Sleep -Seconds 5
     }
     $null = New-Item  -Type Directory -Path $Destination -ErrorAction Ignore
 }
 
-Task UnitTests {
-    $TestResults = Invoke-Pester -Path Tests\*unit* -PassThru -Tag Build -ExcludeTag Slow
-    if ($TestResults.FailedCount -gt 0)
-    {
-        Write-Error "Failed [$($TestResults.FailedCount)] Pester tests"
-    }
-}
+# Task UnitTests {
+#     $TestResults = Invoke-Pester -Path Tests\*unit* -PassThru -Tag Build -ExcludeTag Slow
+#     if ($TestResults.FailedCount -gt 0)
+#     {
+#         Write-Error "Failed [$($TestResults.FailedCount)] Pester tests"
+#     }
+# }
 
-Task FullTests {
-    $TestResults = Invoke-Pester -Path Tests -PassThru -OutputFormat NUnitXml -OutputFile $testFile -Tag Build
-    if ($TestResults.FailedCount -gt 0)
-    {
-        Write-Error "Failed [$($TestResults.FailedCount)] Pester tests"
-    }
-}
+# Task FullTests {
+#     $TestResults = Invoke-Pester -Path Tests -PassThru -OutputFormat NUnitXml -OutputFile $testFile -Tag Build
+#     if ($TestResults.FailedCount -gt 0)
+#     {
+#         Write-Error "Failed [$($TestResults.FailedCount)] Pester tests"
+#     }
+# }
 
-Task Specification {
+# Task Specification {
 
-    $TestResults = Invoke-Gherkin $PSScriptRoot\Spec -PassThru
-    if ($TestResults.FailedCount -gt 0)
-    {
-        Write-Error "[$($TestResults.FailedCount)] specification are incomplete"
-    }
-}
+#     $TestResults = Invoke-Gherkin $PSScriptRoot\Spec -PassThru
+#     if ($TestResults.FailedCount -gt 0)
+#     {
+#         Write-Error "[$($TestResults.FailedCount)] specification are incomplete"
+#     }
+# }
 
 Task CopyToOutput {
 
@@ -68,51 +71,56 @@ Task CopyToOutput {
         ForEach-Object { "  Create [.{0}]" -f $_.fullname.replace($PSScriptRoot, '')}
 }
 
+Task PSScriptAnalyzer {
+
+    "placeholder for PSSCriptanalyze"
+}
+
 TaskX BuildPSM1 @{
-    Inputs  = (Get-Item "$source\*\*.ps1") 
-    Outputs = $ModulePath 
+    Inputs  = (Get-Item "$source\*\*.ps1")
+    Outputs = $ModulePath
     Jobs    = {
-        [System.Text.StringBuilder]$stringbuilder = [System.Text.StringBuilder]::new()    
+        [System.Text.StringBuilder]$stringbuilder = [System.Text.StringBuilder]::new()
         foreach ($folder in $imports )
         {
             [void]$stringbuilder.AppendLine( "Write-Verbose 'Importing from [$Source\$folder]'" )
             if (Test-Path "$source\$folder")
             {
-                $fileList = Get-ChildItem "$source\$folder\*.ps1" | Where Name -NotLike '*.Tests.ps1'
+                $fileList = Get-ChildItem $source\$folder\ -Recurse -include *.ps1  | Where Name -NotLike '*.Tests.ps1'
                 foreach ($file in $fileList)
                 {
                     $shortName = $file.fullname.replace($PSScriptRoot, '')
                     "  Importing [.$shortName]"
-                    [void]$stringbuilder.AppendLine( "# .$shortName" ) 
+                    [void]$stringbuilder.AppendLine( "# .$shortName" )
                     [void]$stringbuilder.AppendLine( [System.IO.File]::ReadAllText($file.fullname) )
                 }
             }
         }
-        
+
         "  Creating module [$ModulePath]"
-        Set-Content -Path  $ModulePath -Value $stringbuilder.ToString() 
+        Set-Content -Path  $ModulePath -Value $stringbuilder.ToString()
     }
 }
 
-TaskX NextPSGalleryVersion @{
-    If     = (-Not ( Test-Path "$output\version.xml" ) ) 
-    Before = 'BuildPSD1'
-    Jobs   = {
-        $galleryVersion = Get-NextPSGalleryVersion -Name $ModuleName
-        $galleryVersion | Export-Clixml -Path "$output\version.xml"
-    }
-}
+# TaskX NextPSGalleryVersion @{
+#     If     = (-Not ( Test-Path "$output\version.xml" ) )
+#     Before = 'BuildPSD1'
+#     Jobs   = {
+#         $galleryVersion = Get-NextPSGalleryVersion -Name $ModuleName
+#         $galleryVersion | Export-Clixml -Path "$output\version.xml"
+#     }
+# }
 
 TaskX BuildPSD1 @{
-    Inputs  = (Get-ChildItem $Source -Recurse -File) 
-    Outputs = $ManifestPath 
+    Inputs  = (Get-ChildItem $Source -Recurse -File)
+    Outputs = $ManifestPath
     Jobs    = {
-    
+
         Write-Output "  Update [$ManifestPath]"
         Copy-Item "$source\$ModuleName.psd1" -Destination $ManifestPath
 
 
-        $functions = Get-ChildItem "$ModuleName\Public\*.ps1" | Where-Object { $_.name -notmatch 'Tests'} | Select-Object -ExpandProperty basename      
+        $functions = Get-ChildItem $ModuleName\Public -Recurse -include *.ps1 | Where-Object { $_.name -notmatch 'Tests'} | Select-Object -ExpandProperty basename
         Set-ModuleFunctions -Name $ManifestPath -FunctionsToExport $functions
 
         Write-Output "  Detecting semantic versioning"
@@ -130,17 +138,17 @@ TaskX BuildPSD1 @{
                 $command.parameters[$parameter].aliases | Foreach-Object { '{0}:{1}' -f $command.name, $_}
             }
         }
-        
+
         $fingerprint = $fingerprint | Sort-Object
 
         if (Test-Path .\fingerprint)
         {
             $oldFingerprint = Get-Content .\fingerprint
         }
-        
+
         $bumpVersionType = 'Patch'
         '    Detecting new features'
-        $fingerprint | Where {$_ -notin $oldFingerprint } | % {$bumpVersionType = 'Minor'; "      $_"}    
+        $fingerprint | Where {$_ -notin $oldFingerprint } | % {$bumpVersionType = 'Minor'; "      $_"}
         '    Detecting breaking changes'
         $oldFingerprint | Where {$_ -notin $fingerprint } | % {$bumpVersionType = 'Major'; "      $_"}
 
@@ -156,21 +164,30 @@ TaskX BuildPSD1 @{
             {
                 $bumpVersionType = 'Minor'
             }
-            else 
+            else
             {
                 $bumpVersionType = 'Patch'
-            }       
+            }
         }
 
-        $galleryVersion = Import-Clixml -Path "$output\version.xml"
+        if(-not(Test-Path "$output\version.xml")){
+            "    PSXML not found. Determining version with Get-NextPSGalleryVersion and creating PSXML"
+            $galleryVersion = Get-NextPSGalleryVersion -Name $ModuleName
+            $galleryVersion | Export-Clixml -Path "$output\version.xml"
+        }else{
+            "    PSXML found. Grabbing value from previous build."
+            $galleryVersion = Import-Clixml -Path "$output\version.xml"
+        }
+        
         if ( $version -lt $galleryVersion )
         {
             $version = $galleryVersion
         }
+
         Write-Output "  Stepping [$bumpVersionType] version [$version]"
         $version = [version] (Step-Version $version -Type $bumpVersionType)
         Write-Output "  Using version: $version"
-        
+
         Update-Metadata -Path $ManifestPath -PropertyName ModuleVersion -Value $version
     }
 }
@@ -229,11 +246,11 @@ TaskX CreateHelp @{
         {
             Get-ChildItem $_ | % {'{0}\{1}.md' -f $HelpRoot, $_.basename}
         }
-    }    
-    Jobs    = 'ImportModule', {    
+    }
+    Jobs    = 'ImportModule', {
         process
         {
-            $null = New-Item -Path $HelpRoot -ItemType Directory -ErrorAction SilentlyContinue        
+            $null = New-Item -Path $HelpRoot -ItemType Directory -ErrorAction SilentlyContinue
             $mdHelp = @{
                 #Module                = $script:ModuleName
                 OutputFolder          = $HelpRoot
@@ -243,7 +260,7 @@ TaskX CreateHelp @{
                 Command               = Get-Item $_ | % basename
             }
             New-MarkdownHelp @mdHelp | % fullname
-        }    
+        }
     }
 }
 
