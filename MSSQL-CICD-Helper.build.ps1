@@ -12,48 +12,35 @@ $script:HelpRoot = Join-Path $Output 'help'
 
 function TaskX($Name, $Parameters) {task $Name @Parameters -Source $MyInvocation}
 
-Task Default Clean, Build, PSScriptAnalyzer, UpdateSource
-#Task Default Clean, Build, Pester, UpdateSource, Publish
+Task Default Clean, Build, Pester, UpdateSource
 Task Build CopyToOutput, BuildPSM1, BuildPSD1
 Task Pester Build, ImportModule, UnitTests, FullTests
-#Task Local Build, Pester, UpdateSource
-Task Local Build, PSScriptAnalyzer, UpdateSource
+Task Local Build, Pester, UpdateSource
 
 Task Clean {
 
     If (Test-Path $Output)
     {
         $null = Remove-Item $Output -Recurse -ErrorAction Ignore
-        #added sleep because TaskX NextPSGalleryVersion would not trigger when output is available but cleaned.
-        Start-Sleep -Seconds 5
     }
     $null = New-Item  -Type Directory -Path $Destination -ErrorAction Ignore
 }
 
-# Task UnitTests {
-#     $TestResults = Invoke-Pester -Path Tests\*unit* -PassThru -Tag Build -ExcludeTag Slow
-#     if ($TestResults.FailedCount -gt 0)
-#     {
-#         Write-Error "Failed [$($TestResults.FailedCount)] Pester tests"
-#     }
-# }
+Task UnitTests {
+    $TestResults = Invoke-Pester -Path Tests\*unit* -PassThru -Tag Build -ExcludeTag Slow
+    if ($TestResults.FailedCount -gt 0)
+    {
+        Write-Error "Failed [$($TestResults.FailedCount)] Pester tests"
+    }
+}
 
-# Task FullTests {
-#     $TestResults = Invoke-Pester -Path Tests -PassThru -OutputFormat NUnitXml -OutputFile $testFile -Tag Build
-#     if ($TestResults.FailedCount -gt 0)
-#     {
-#         Write-Error "Failed [$($TestResults.FailedCount)] Pester tests"
-#     }
-# }
-
-# Task Specification {
-
-#     $TestResults = Invoke-Gherkin $PSScriptRoot\Spec -PassThru
-#     if ($TestResults.FailedCount -gt 0)
-#     {
-#         Write-Error "[$($TestResults.FailedCount)] specification are incomplete"
-#     }
-# }
+Task FullTests {
+    $TestResults = Invoke-Pester -Path Tests -PassThru -OutputFormat NUnitXml -OutputFile $testFile -Tag Build
+    if ($TestResults.FailedCount -gt 0)
+    {
+        Write-Error "Failed [$($TestResults.FailedCount)] Pester tests"
+    }
+}
 
 Task CopyToOutput {
 
@@ -69,27 +56,6 @@ Task CopyToOutput {
         where name -NotIn $imports |
         Copy-Item -Destination $Destination -Recurse -Force -PassThru |
         ForEach-Object { "  Create [.{0}]" -f $_.fullname.replace($PSScriptRoot, '')}
-}
-
-Task PSScriptAnalyzer {
-    # Inputs = 
-    # Outputs = 
-    # Jobs = {
-        $excludedRules = (
-        'PSAvoidUsingConvertToSecureStringWithPlainText', # For private token information
-        'PSAvoidUsingUserNameAndPassWordParams' # this refers to gitlab users and passwords
-        )
-
-        $saResults = Invoke-ScriptAnalyzer -Path $ModulePath -Severity Error -ExcludeRule $excludedRules -Recurse #-Verbose:$false   
-
-        $saResults | Select-Object SuggestedCorrections | Format-Custom | Out-File -LiteralPath "$output\PSScriptAnalyzer.txt" -Force
-
-        if ($saResults) {
-            $saResults | Format-Table
-            throw 'One or more Script Analyzer errors/warnings where found. Build cannot continue!'
-        }
-    # }
-
 }
 
 TaskX BuildPSM1 @{
@@ -118,15 +84,6 @@ TaskX BuildPSM1 @{
     }
 }
 
-# TaskX NextPSGalleryVersion @{
-#     If     = (-Not ( Test-Path "$output\version.xml" ) )
-#     Before = 'BuildPSD1'
-#     Jobs   = {
-#         $galleryVersion = Get-NextPSGalleryVersion -Name $ModuleName
-#         $galleryVersion | Export-Clixml -Path "$output\version.xml"
-#     }
-# }
-
 TaskX BuildPSD1 @{
     Inputs  = (Get-ChildItem $Source -Recurse -File)
     Outputs = $ManifestPath
@@ -135,9 +92,8 @@ TaskX BuildPSD1 @{
         Write-Output "  Update [$ManifestPath]"
         Copy-Item "$source\$ModuleName.psd1" -Destination $ManifestPath
 
-
         $functions =  Get-ChildItem $ModuleName\Public -Recurse -include *.ps1 | Where-Object { $_.name -notmatch 'Tests'} | Select-Object -ExpandProperty basename
-        Set-ModuleFunctions -Name $ManifestPath -FunctionsToExport "`n $functions"
+        Set-ModuleFunctions -Name $ManifestPath -FunctionsToExport $functions
 
         Write-Output "  Detecting semantic versioning"
 
@@ -229,30 +185,6 @@ Task ImportModule {
         Import-Module $ManifestPath -Force
     }
 }
-
-# Task Publish {
-#     # Gate deployment
-#     if (
-#         $ENV:BHBuildSystem -ne 'Unknown' -and
-#         $ENV:BHBranchName -eq "master" -and
-#         $ENV:BHCommitMessage -match '!deploy|resolves\s+#\d+'
-#     )
-#     {
-#         $Params = @{
-#             Path  = $BuildRoot
-#             Force = $true
-#         }
-
-#         Invoke-PSDeploy @Verbose @Params
-#     }
-#     else
-#     {
-#         "Skipping deployment: To deploy, ensure that...`n" +
-#         "`t* You are in a known build system (Current: $ENV:BHBuildSystem)`n" +
-#         "`t* You are committing to the master branch (Current: $ENV:BHBranchName) `n" +
-#         "`t* Your commit message includes !deploy (Current: $ENV:BHCommitMessage)"
-#     }
-# }
 
 TaskX CreateHelp @{
     Partial = $true
