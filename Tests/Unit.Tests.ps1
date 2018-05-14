@@ -28,8 +28,16 @@ Describe "Basic function unit tests" -Tags Build {
             }
         }
 
-        It "When no config file is found the following functions should fail"{
-            { Get-MSSQLCICDHelperConfiguration } | Should Throw
+        It "When no config file is found Get-MSSQLCICDHelperConfiguration should fail"{
+            { Get-MSSQLCICDHelperConfiguration -erroraction stop } | Should Throw
+        }
+
+        It "When no config file is found Invoke-MSSQLCICDHelperMSBuild should fail"{
+            { Invoke-MSSQLCICDHelperMSBuild -erroraction stop } | Should Throw
+        }
+
+        It "When no config file is found Invoke-MSSQLCICDHelperSQLPackage should fail"{
+            { Invoke-MSSQLCICDHelperSQLPackage -erroraction stop } | Should Throw
         }
     }
 
