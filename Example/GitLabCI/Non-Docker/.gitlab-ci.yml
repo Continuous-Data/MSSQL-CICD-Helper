@@ -1,0 +1,18 @@
+stages:
+  - build
+  - deploy
+
+msbuild:
+  stage: build
+  artifacts:
+    untracked: true
+  script:
+    - powershell -File .\CICD-Kicker.ps1 -function Build
+  tags: [yourrunnertaghere]
+SSDTDeploy:
+  stage: deploy
+  artifacts:
+    untracked: true
+  script:
+    - powershell -File .\CICD-Kicker.ps1 -function Deploy -TargetServer %yourciservervar% -TargetDatabase %yourcidbvar% -TargetUser %yourciuservar% -TargetPW %yourcipwvar%
+  tags: [yourrunnertaghere]
