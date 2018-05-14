@@ -330,7 +330,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
                     
                 }else{
                     Write-Error "Some of the target Credentials are not filled"
-                    exit 1;
+                    throw;
                 }
             }
 
@@ -383,7 +383,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             $result.Succeeded = $false
             Write-Error ($result.Message)
             return $result
-            EXIT 1;
+            throw;
         }
         
         Write-verbose "SQLPackage.exe Started. Continue Checking results..."
@@ -400,7 +400,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
     
             Write-Error "$($result.message)"
             return $result
-            EXIT 1;
+            throw;
         }
         
         
@@ -431,7 +431,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             $result.Message = "Processing ""$($result.FiletoProcess)"" Failed! Please check ""$($result.LogFile)"" "
             $result
             Write-Error "$($result.message)"
-            EXIT 1;
+            throw;
 
         }
     

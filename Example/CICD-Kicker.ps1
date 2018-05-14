@@ -23,7 +23,7 @@ if(-not(Get-Module MSSQLCICDHelper)){
     }
     catch{
         write-error "something wnet wrong cloning or importing the MSSQL-CICD-helper module. please check and retry"
-        exit 1;
+        Throw;
     }
     
     

@@ -125,7 +125,7 @@ Function Save-MSSQLCICDHelperConfiguration {
 
     } else {
         Write-Error "Unknown Platform"
-        EXIT 1;
+        throw;
     }
 
     Write-Verbose 'Testing config path.'
@@ -134,7 +134,7 @@ Function Save-MSSQLCICDHelperConfiguration {
 
     }else{
         Write-error "Path not found"
-        EXIT 1;
+        throw;
     }
 
     $Parameters | Export-Clixml -Path $ConfigFile

@@ -250,7 +250,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
         $result.BuildSucceeded = $false
         Write-Error ($result.Message)
         return $result
-        EXIT 1;
+        throw;
     }
     
     Write-verbose "MSBuild Started. Continue Checking results..."
@@ -262,7 +262,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
 
         Write-Error "$($result.message)"
         return $result
-        EXIT 1;
+        throw;
     }
 
     if($UseInvokeMSBuildModule){
@@ -294,7 +294,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
         $result.Message = "Building ""$($result.FiletoBuild)"" Failed! Please check ""$($result.BuildLogFile)"" "
         Write-Error "$($result.message)"
         return $result
-        EXIT 1;
+        throw;
     }
 
     Write-Verbose "MSBuild passed. See results below..."

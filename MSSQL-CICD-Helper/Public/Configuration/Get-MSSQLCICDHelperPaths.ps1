@@ -76,7 +76,7 @@ Function Get-MSSQLCICDHelperPaths {
         }
         default {
             Write-Error "Invalid option given for input param -typetofind. valid options are: MSBuild, SQLPackage or Both"
-            EXIT 1
+            throw;
         }
     }
     Write-verbose "searching for $exestofind in $rootpath"

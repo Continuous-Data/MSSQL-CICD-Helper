@@ -29,7 +29,7 @@ function Get-MSSQLCICDHelperConfiguration  {
     }catch{
         
         Write-Error "Could not import config. Make sure it exists or save a new config." 
-        EXIT 1
+        throw;
     }
     
 }
