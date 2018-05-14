@@ -66,8 +66,7 @@ Description = 'Set of Powershell functions to aid in CI/CD processes to build wi
 # NestedModules = @()
 
 # Functions to export from this module
-FunctionsToExport = @('
- Get-MSSQLCICDHelperFiletoBuildDeploy Invoke-MSSQLCICDHelperMSBuild Invoke-MSSQLCICDHelperSQLPackage Get-MSSQLCICDHelperConfiguration Get-MSSQLCICDHelperPaths Save-MSSQLCICDHelperConfiguration')
+FunctionsToExport = @('Get-MSSQLCICDHelperFiletoBuildDeploy','Invoke-MSSQLCICDHelperMSBuild','Invoke-MSSQLCICDHelperSQLPackage','Get-MSSQLCICDHelperConfiguration','Get-MSSQLCICDHelperPaths','Save-MSSQLCICDHelperConfiguration')
 
 # Cmdlets to export from this module
 #CmdletsToExport = '*'
