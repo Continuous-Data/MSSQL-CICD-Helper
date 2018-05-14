@@ -15,6 +15,7 @@ function TaskX($Name, $Parameters) {task $Name @Parameters -Source $MyInvocation
 Task Default Clean, Build, Pester, UpdateSource
 Task Build CopyToOutput, BuildPSM1, BuildPSD1
 Task Pester Build, ImportModule, UnitTests, FullTests
+Task LocalPester Build, ImportModule, UnitTests
 Task Local Build, Pester, UpdateSource
 
 Task Clean {
