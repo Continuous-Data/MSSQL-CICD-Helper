@@ -1,0 +1,10 @@
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\bin\Debug\workingsolution.dacpac
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\bin\Debug\workingsolution.dll
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\bin\Debug\workingsolution.pdb
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\obj\Debug\workingsolution.sqlprojAssemblyReference.cache
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\obj\Debug\Model.xml
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\obj\Debug\refactor.xml
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\obj\Debug\postdeploy.sql
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\obj\Debug\predeploy.sql
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\obj\Debug\workingsolution.dll
+D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\workingbuilddeploy\workingsolution\workingsolution\obj\Debug\workingsolution.pdb
