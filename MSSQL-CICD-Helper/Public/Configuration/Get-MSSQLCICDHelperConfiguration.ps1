@@ -25,7 +25,8 @@ function Get-MSSQLCICDHelperConfiguration  {
     try{
         $ConfigFile = ImportConfig
 
-        Write-Output $ConfigFile
+        #Write-Output $ConfigFile
+        return $ConfigFile
     }catch{
         
         Write-Error "Could not import config. Make sure it exists or save a new config." 
