@@ -1,61 +1,171 @@
 $projectRoot = Resolve-Path "$PSScriptRoot\.."
 $moduleRoot = Split-Path (Resolve-Path "$projectRoot\*\*.psd1")
 $moduleName = Split-Path $moduleRoot -Leaf
+$testRoot = Resolve-Path "$projectRoot\Tests"
 
 #Import-Module (Join-Path $moduleRoot "$moduleName.psm1") -force
+InModuleScope MSSQL-CICD-Helper {
 
-Describe "Basic function unit tests" -Tags Build {
+    Describe "CurrentVersion" -Tags Build {
+        
 
-    Context "Config" {
+        It "Saves the configuration with expected values"{
+            # Act
+            $version = currentversion
+            
+            # Assert
+            $version | should be 'v1.0.0'
+        }
+    }
 
-        it "importconfig should return a value when a config file exists" {
+    Describe 'Save-MSSQLCICDHelperConfiguration' -Tags Build {
 
-            { Get-MSSQLCICDHelperConfiguration } | Should Not Throw
+        # Prepare
+        $FilePath = "$TestDrive\PesterTest.xml"
+
+        $ExportCLIXML = Get-Command Export-Clixml
+        $currentversion = currentversion
+
+        Mock Export-Clixml {
+            & $ExportCLIXML -InputObject $InputObject -Path $FilePath
+        }
+
+        Mock Test-Path {$true}
+
+        It "Saves the configuration with expected values"{
+            # Act
+            Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
+            
+            # Assert
+            $results = Import-Clixml "$TestDrive\PesterTest.xml"
+            $results.SQLPackageExe | Should be 'C:\pestertest\SQLPackage.exe'
+            $results.MSBuildExe | Should be 'C:\pestertest\MSBuild.exe'
+            $results.version | Should be "$currentversion"
+        }
+
+        It "Saves without throwing"{
+            # Act
+            {
+                Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
+            } | Should not throw
+            
+            
+        }
+        # prepare fail
+        Mock Test-Path {$false}
+
+        It "Throws when Test-Path fails"{
+            # Act
+            {
+                Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
+            } | Should throw
+            
+            
+        }
+    }
+    
+    Describe "ImportConfig" -Tags Build {
+        # Prepare
+        $FilePath = "$TestDrive\PesterTest.xml"
+
+        $ExportCLIXML = Get-Command Export-Clixml
+        $ImportCLIXML = Get-Command Import-Clixml
+        $currentversion = currentversion
+
+        Mock Export-Clixml {
+            & $ExportCLIXML -InputObject $InputObject -Path $FilePath
+        }
+
+        Mock Test-Path {$true}
+
+        Mock Import-Clixml -Verifiable {
+            & $ImportCLIXML $FilePath
+        }
+
+        It "Saves the configuration with expected values"{
+            # Act
+            Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
+            
+            # Assert
+            $results = ImportConfig
+            $results.SQLPackageExe | Should be 'C:\pestertest\SQLPackage.exe'
+            $results.MSBuildExe | Should be 'C:\pestertest\MSBuild.exe'
+            $results.version | Should be "$currentversion"
+        }
+
+        It "imports the config w/o throwing an error"{
+
+            {
+                ImportConfig -erroraction stop
+            } | Should not throw
+        }
+
+        # prepare fail
+        Mock Test-Path {$false}
+
+        It "Throws an error when path cannot be tested"{
+
+            {
+                ImportConfig -erroraction stop
+            } | Should  throw
         }
 
     }
 
-    Context "NoConfig" {
-        BeforeAll{
-            if(Test-path $env:appdata\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml){
-                Rename-Item -Path "$env:appdata\MSSQLCICDHelper\MSSQLCICDHelperConfiguration.xml" -NewName "PesterBackupMSSQLCICDHelperConfiguration.xml"
-            }
+    Describe "Get-MSSQLCICDHelperConfiguration" -Tags Build {
+        # Prepare
+        $FilePath = "$TestDrive\PesterTest.xml"
+
+        $ExportCLIXML = Get-Command Export-Clixml
+        $currentversion = currentversion
+
+        Mock Export-Clixml {
+            & $ExportCLIXML -InputObject $InputObject -Path $FilePath
         }
 
-        AfterAll{
-            if(Test-path $env:appdata\MSSQLCICDHelper\PesterBackupMSSQLCICDHelperConfiguration.xml){
-                Rename-Item -Path "$env:appdata\MSSQLCICDHelper\PesterBackupMSSQLCICDHelperConfiguration.xml" -NewName "MSSQLCICDHelperConfiguration.xml"
-            }
+        Mock Test-Path {$true}
+
+        Mock ImportConfig {$mockresult}
+
+        It "Saves the configuration with expected values"{
+            # Act
+            Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
+            
+            $mockresult = Import-Clixml "$TestDrive\PesterTest.xml"
+            # Assert
+            $results = Get-MSSQLCICDHelperConfiguration $FilePath
+            $results.SQLPackageExe | Should be 'C:\pestertest\SQLPackage.exe'
+            $results.MSBuildExe | Should be 'C:\pestertest\MSBuild.exe'
+            $results.version | Should be "$currentversion"
         }
 
-        It "When no config file is found Get-MSSQLCICDHelperConfiguration should fail"{
-            { Get-MSSQLCICDHelperConfiguration -erroraction stop } | Should Throw
+        It "imports the config w/o throwing an error"{
+
+            {
+                Get-MSSQLCICDHelperConfiguration -erroraction stop
+            } | Should not throw
         }
 
-        It "When no config file is found Invoke-MSSQLCICDHelperMSBuild should fail"{
-            { Invoke-MSSQLCICDHelperMSBuild -erroraction stop } | Should Throw
+        # prepare fail
+        Mock importconfig {throw "Could not import config. Make sure it exists or save a new config."}
+
+        It "Throws an error when nested function fails"{
+
+            {
+                Get-MSSQLCICDHelperConfiguration -erroraction stop
+            } | Should  throw "Could not import config. Make sure it exists or save a new config."
         }
 
-        It "When no config file is found Invoke-MSSQLCICDHelperSQLPackage should fail"{
-            { Invoke-MSSQLCICDHelperSQLPackage -erroraction stop } | Should Throw
-        }
     }
 
-    Context "Build" {
+    Describe "Get-MSSQLCICDHelperPaths" -Tags Build {}
 
-        it "importconfig should return a value when a config file exists" {
+    Describe "Get-MSSQLCICDHelperFiletoBuildDeploy" -Tags Build {}
 
-            { Get-MSSQLCICDHelperConfiguration } | Should Not Throw
-        }
+    Describe "Invoke-MSSQLCICDHelperMSBuild" -Tags Build {}
 
-    }
+    Describe "Invoke-MSSQLCICDHelperSQLPackage" -Tags Build {}
 
-    Context "Deploy" {
-
-        it "importconfig should return a value when a config file exists" {
-
-            { Get-MSSQLCICDHelperConfiguration } | Should Not Throw
-        }
-
-    }
 }
+
+
