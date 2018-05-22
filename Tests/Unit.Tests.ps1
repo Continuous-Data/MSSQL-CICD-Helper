@@ -416,7 +416,7 @@ InModuleScope MSSQL-CICD-Helper {
 
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\Solution2.sln"
+                $results.Fullname | Should contain "$TestDrive\Single\Solution.sln"
 
             }
 
@@ -425,7 +425,7 @@ InModuleScope MSSQL-CICD-Helper {
           
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\SQLProject2.sqlproj"
+                $results.Fullname | Should contain "$TestDrive\Single\SQLProject.sqlproj"
 
             }
 
@@ -434,7 +434,7 @@ InModuleScope MSSQL-CICD-Helper {
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy2.dacpac"
+                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.dacpac"
 
             }
 
@@ -443,7 +443,7 @@ InModuleScope MSSQL-CICD-Helper {
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy2.publish.xml"
+                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.publish.xml"
 
             }
 
@@ -452,7 +452,7 @@ InModuleScope MSSQL-CICD-Helper {
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\SSISPackages2.dtspac"
+                $results.Fullname | Should contain "$TestDrive\Single\SSISPackages.dtspac"
 
             }
 
@@ -550,7 +550,7 @@ InModuleScope MSSQL-CICD-Helper {
 
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Multiple
 
-                $results.Fullname | Should contain "$TestDrive\Multiple\Solution1.sln"
+                $results.Fullname | Should contain "$TestDrive\Multiple\Solution2.sln"
 
             }
 
@@ -559,7 +559,7 @@ InModuleScope MSSQL-CICD-Helper {
           
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Multiple
 
-                $results.Fullname | Should contain "$TestDrive\Multiple\SQLProject1.sqlproj"
+                $results.Fullname | Should contain "$TestDrive\Multiple\SQLProject2.sqlproj"
 
             }
 
@@ -568,7 +568,7 @@ InModuleScope MSSQL-CICD-Helper {
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Multiple
 
-                $results.Fullname | Should contain "$TestDrive\Multiple\DBToDeploy1.dacpac"
+                $results.Fullname | Should contain "$TestDrive\Multiple\DBToDeploy2.dacpac"
 
             }
 
@@ -577,7 +577,7 @@ InModuleScope MSSQL-CICD-Helper {
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Multiple
 
-                $results.Fullname | Should contain "$TestDrive\Multiple\DBToDeploy1.publish.xml"
+                $results.Fullname | Should contain "$TestDrive\Multiple\DBToDeploy2.publish.xml"
 
             }
 
@@ -586,7 +586,7 @@ InModuleScope MSSQL-CICD-Helper {
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Multiple
 
-                $results.Fullname | Should contain "$TestDrive\Multiple\SSISPackages1.dtspac"
+                $results.Fullname | Should contain "$TestDrive\Multiple\SSISPackages2.dtspac"
 
             }
 
