@@ -158,7 +158,91 @@ InModuleScope MSSQL-CICD-Helper {
 
     }
 
-    Describe "Get-MSSQLCICDHelperPaths" -Tags Build {}
+    Describe "Get-MSSQLCICDHelperPaths" -Tags Build {
+        It "Should throw an error when no parameters are entered"{
+            {
+               Get-MSSQLCICDHelperPaths -erroraction stop
+            } | Should Throw
+
+        }
+        
+        It "Should throw an error when no valid typetofind was entered"{
+            {
+               Get-MSSQLCICDHelperPaths -typetofind Pester -rootpath $TestDrive -erroraction stop
+            } | Should Throw 
+
+        }
+
+        #mock 1 MSBuild.exe and 2 SQLPackage.exe
+        Mock New-Item -Path $TestDrive\exepath1 -Name "MSBuild.exe"
+        Mock New-Item -Path $TestDrive\exepath1 -Name "MSBuild.exe"
+        Mock New-Item -Path $TestDrive\exepath2 -Name "SQLPackage.exe"
+        
+        It "Should find one MSBuild.exe when searching MSBuild"{
+        
+        (Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive).count | Should HaveCount 1
+
+        }
+        
+        It "Should find two SQLPackage.exe when searching SQLPackage"{
+        
+        (Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive).count | Should HaveCount 2
+
+        } 
+
+        It "Should find three SQLPackage.exe when searching Both"{
+        
+        (Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive).count | Should HaveCount 3
+
+        } 
+
+        It "Should find find the correct path to MSbuild.exe"{
+        
+        $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
+
+        $results | Should be "$TestDrive\exepath1\MSBuild.exe"
+
+        } 
+
+        It "Should find find the correct paths to SQLPackage.exe"{
+        
+        $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+
+        $results | Should be "$TestDrive\exepath1\SQLPackage.exe"
+        $results | Should be "$TestDrive\exepath2\SQLPackage.exe"
+
+        } 
+
+        It "Should find find the correct paths to Both .exe"{
+        
+        $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
+
+        $results | Should be "$TestDrive\exepath1\MSBuild.exe"
+        $results | Should be "$TestDrive\exepath1\SQLPackage.exe"
+        $results | Should be "$TestDrive\exepath2\SQLPackage.exe"
+
+        } 
+
+        It "Should not Throw when searching MSBuild"{
+        
+        {Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive } | Should Not Throw
+
+        }
+        
+        It "Should not Throw when searching SQLPackage"{
+        
+        {Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive } | Should Not Throw
+
+        } 
+
+        It "Should not Throw when searching Both"{
+        
+        {Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive } | Should Not Throw
+
+        } 
+
+        
+    }
 
     Describe "Get-MSSQLCICDHelperFiletoBuildDeploy" -Tags Build {}
 
