@@ -319,11 +319,11 @@ InModuleScope MSSQL-CICD-Helper {
         New-Item  -Path $TestDrive\Multiple\DBToDeploy1.publish.xml -ItemType File
         New-Item  -Path $TestDrive\Multiple\SSISPackages1.dtspac -ItemType File
 
-        New-Item  -Path $TestDrive\Multiple\Solution.sln -ItemType File
-        New-Item  -Path $TestDrive\Multiple\SQLProject.sqlproj -ItemType File
-        New-Item  -Path $TestDrive\Multiple\DBToDeploy.dacpac -ItemType File
-        New-Item  -Path $TestDrive\Multiple\DBToDeploy.publish.xml -ItemType File
-        New-Item  -Path $TestDrive\Multiple\SSISPackages.dtspac -ItemType File
+        New-Item  -Path $TestDrive\Multiple\Solution2.sln -ItemType File
+        New-Item  -Path $TestDrive\Multiple\SQLProject2.sqlproj -ItemType File
+        New-Item  -Path $TestDrive\Multiple\DBToDeploy2.dacpac -ItemType File
+        New-Item  -Path $TestDrive\Multiple\DBToDeploy2.publish.xml -ItemType File
+        New-Item  -Path $TestDrive\Multiple\SSISPackages2.dtspac -ItemType File
         
         #To Ignore Multiple
         New-Item  -Path $TestDrive\Multiple\DBToIgnore.nonpublish.xml -ItemType File
