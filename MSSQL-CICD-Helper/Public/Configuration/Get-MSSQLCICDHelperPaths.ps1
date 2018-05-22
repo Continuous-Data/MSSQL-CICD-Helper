@@ -84,6 +84,6 @@ Function Get-MSSQLCICDHelperPaths {
     $exestofind | ForEach-Object{
         $results += Get-ChildItem -Path $rootpath -filter $_ -Recurse -ErrorAction SilentlyContinue
     }
-    Write-Output 'Found the following full paths for given parameters. Please take note of these and use the desired path in Save-MSSQLCICDHelperConfiguration'
+    Write-verbose 'Found the following full paths for given parameters. Please take note of these and use the desired path in Save-MSSQLCICDHelperConfiguration'
     $results.FullName
 }
