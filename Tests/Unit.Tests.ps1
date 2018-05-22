@@ -180,19 +180,19 @@ InModuleScope MSSQL-CICD-Helper {
         
         It "Should find one MSBuild.exe when searching MSBuild"{
         
-        (Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive).count | Should BeGreaterOrEqual 1
+        (Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive).count | Should BeGreaterOrEqual 10
 
         }
         
         It "Should find two SQLPackage.exe when searching SQLPackage"{
 
-        (Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive).count | Should BeLessOrEqual 2
+        (Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive).count | Should BeGreaterOrEqual 20
 
         } 
 
         It "Should find three SQLPackage.exe when searching Both"{
         
-        (Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive).count | Should BeLessOrEqual 3
+        (Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive).count | Should BeGreaterOrEqual 30
 
         } 
 
