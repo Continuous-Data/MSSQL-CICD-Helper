@@ -7,7 +7,9 @@ $testRoot = Resolve-Path "$projectRoot\Tests"
 InModuleScope MSSQL-CICD-Helper {
 
     Describe "CurrentVersion" -Tags Build {
-        
+        $returnedversion = 'V1.0.0'
+
+        Mock CurrentVersion {$returnedversion}
 
         It "Saves the configuration with expected values"{
             # Act
@@ -48,8 +50,7 @@ InModuleScope MSSQL-CICD-Helper {
             {
                 Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
             } | Should not throw
-            
-            
+
         }
         # prepare fail
         Mock Test-Path {$false}
@@ -60,21 +61,27 @@ InModuleScope MSSQL-CICD-Helper {
                 Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
             } | Should throw
             
-            
         }
     }
     
     Describe "ImportConfig" -Tags Build {
         # Prepare
-        $FilePath = "$TestDrive\PesterTest.xml"
 
-        $ExportCLIXML = Get-Command Export-Clixml
+        Mock currentversion {'V1.0.0'}
+
+        $FilePath = "$TestDrive\PesterTest.xml"
         $ImportCLIXML = Get-Command Import-Clixml
+        $buildpath = 'C:\pestertest\MSBuild.exe'
+        $sqlpath = 'C:\pestertest\SQLPackage.exe'
         $currentversion = currentversion
 
-        Mock Export-Clixml {
-            & $ExportCLIXML -InputObject $InputObject -Path $FilePath
+        $export = @{
+            MSBuildExe = $buildpath
+            SQLPackageExe = $sqlpath
+            Version = currentversion
         }
+
+        $export | Export-Clixml -path $FilePath
 
         Mock Test-Path {$true}
 
@@ -82,15 +89,12 @@ InModuleScope MSSQL-CICD-Helper {
             & $ImportCLIXML $FilePath
         }
 
-        It "Saves the configuration with expected values"{
-            # Act
-            Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
-            
+        It "imports the config with the correct values"{
             # Assert
             $results = ImportConfig
-            $results.SQLPackageExe | Should be 'C:\pestertest\SQLPackage.exe'
-            $results.MSBuildExe | Should be 'C:\pestertest\MSBuild.exe'
-            $results.version | Should be "$currentversion"
+            $results.SQLPackageExe | Should BeExactly $sqlpath
+            $results.MSBuildExe | Should BeExactly $buildpath
+            $results.version | Should BeExactly $currentversion
         }
 
         It "imports the config w/o throwing an error"{
@@ -114,29 +118,36 @@ InModuleScope MSSQL-CICD-Helper {
 
     Describe "Get-MSSQLCICDHelperConfiguration" -Tags Build {
         # Prepare
-        $FilePath = "$TestDrive\PesterTest.xml"
+        Mock currentversion {'V1.0.0'}
 
-        $ExportCLIXML = Get-Command Export-Clixml
+        $FilePath = "$TestDrive\PesterTest.xml"
+        $ImportCLIXML = Get-Command Import-Clixml
+        $buildpath = 'C:\pestertest\MSBuild.exe'
+        $sqlpath = 'C:\pestertest\SQLPackage.exe'
         $currentversion = currentversion
 
-        Mock Export-Clixml {
-            & $ExportCLIXML -InputObject $InputObject -Path $FilePath
+        $export = @{
+            MSBuildExe = $buildpath
+            SQLPackageExe = $sqlpath
+            Version = currentversion
         }
+
+        $export | Export-Clixml -path $FilePath
+
+        $mockresult = Import-Clixml $FilePath
 
         Mock Test-Path {$true}
 
         Mock ImportConfig {$mockresult}
 
-        It "Saves the configuration with expected values"{
-            # Act
-            Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
-            
-            $mockresult = Import-Clixml "$TestDrive\PesterTest.xml"
+        
+
+        It "Imports the configuration with expected values"{
             # Assert
             $results = Get-MSSQLCICDHelperConfiguration $FilePath
-            $results.SQLPackageExe | Should be 'C:\pestertest\SQLPackage.exe'
-            $results.MSBuildExe | Should be 'C:\pestertest\MSBuild.exe'
-            $results.version | Should be "$currentversion"
+            $results.SQLPackageExe | Should BeExactly $sqlpath
+            $results.MSBuildExe | Should BeExactly $buildpath
+            $results.version | Should BeExactly $currentversion
         }
 
         It "imports the config w/o throwing an error"{
@@ -159,141 +170,187 @@ InModuleScope MSSQL-CICD-Helper {
     }
 
     Describe "Get-MSSQLCICDHelperPaths" -Tags Build {
-        It "Should throw an error when no parameters are entered"{
-            {
-               Get-MSSQLCICDHelperPaths -erroraction stop
-            } | Should Throw
-
-        }
-        
-        It "Should throw an error when no valid typetofind was entered"{
-            {
-               Get-MSSQLCICDHelperPaths -typetofind Pester -rootpath $TestDrive -erroraction stop
-            } | Should Throw 
-
-        }
 
         #mock 1 MSBuild.exe and 2 SQLPackage.exe 1 non existing file.
 
         New-Item  -Path $TestDrive -Name ExePath1 -ItemType Directory
         New-Item  -Path $TestDrive -Name ExePath2 -ItemType Directory
+        New-Item  -Path $TestDrive -Name EmptyFolder -ItemType Directory
 
         New-Item  -Path $TestDrive\ExePath1\MSBuild.exe -ItemType File
         New-Item  -Path $TestDrive\ExePath1\SQLPackage.exe -ItemType File
         New-Item  -Path $TestDrive\ExePath2\SQLPackage.exe -ItemType File
         New-Item  -Path $TestDrive\ExePath1\Itshouldignorethis.exe -ItemType File
-        
-        It "Should find one MSBuild.exe when searching MSBuild"{
-        
-            (Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive).count | Should BeExactly 1
 
-        }
-        
-        It "Should find two SQLPackage.exe when searching SQLPackage"{
+        Context "Mandatory Parameters" {
+            It "Parameter Typetofind should be mandatory"{
 
-            (Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive).count | Should BeExactly 2
+                (Get-Command "Get-MSSQLCICDHelperPaths").Parameters['Typetofind'].Attributes.Mandatory | Should Be $true
+    
+            }
+    
+            It "Parameter Rootpath should be mandatory"{
+    
+                (Get-Command "Get-MSSQLCICDHelperPaths").Parameters['Rootpath'].Attributes.Mandatory | Should Be $true
+    
+            }
 
-        } 
+            It "Should throw an error when no valid typetofind was entered" {
+                {
+                   Get-MSSQLCICDHelperPaths -typetofind Pester -rootpath $TestDrive -erroraction stop
+                } | Should Throw 
+    
+            }
 
-        It "Should find three total *.exe when searching Both"{
-        
-            (Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive).count | Should BeExactly 3
-
-        } 
-
-        It "Should find find the correct path to MSbuild.exe"{
-        
-            $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
-
-            $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
-
-        } 
-
-        It "Should find find the correct paths to SQLPackage.exe"{
-        
-            $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
-
-            $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
-            $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
-
-        } 
-
-        It "Should find find the correct paths to Both *.exe"{
-        
-            $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
-
-            $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
-            $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
-            $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
-
-        }
-        
-        It "Should not contain SQLPackage elements when looking for MSBuild"{
-        
-            $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
-
-            $results | Should not contain "$TestDrive\exepath1\SQLPackage.exe"
-            $results | Should not contain "$TestDrive\exepath2\SQLPackage.exe"
-
-        } 
-
-        It "Should not contain MSBuild elements when looking for SQLPackage"{
-        
-            $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
-
-            $results | Should not contain "$TestDrive\exepath1\MSBuild.exe"
-
-        } 
-
-        It "Should never contain the dummy file when running MSBuild"{
-        
-            $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
-
-            $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
-
+            It "Should throw an error when no valid rootpath was entered for MSBuild"{
+                {
+                   Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive\NonExistingFolder -erroraction stop
+                } | Should Throw 
+    
+            }
+            
+            It "Should throw an error when no valid rootpath was entered for SQLPackage"{
+                {
+                   Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive\NonExistingFolder -erroraction stop
+                } | Should Throw 
+    
+            }
         }
 
-        It "Should never contain the dummy file when running SQLPackage"{
+        Context "No Files Found"{
+            It "Should throw an error when no files were found for MSBuild"{
+                {
+                   Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive\NonExistingFolder -erroraction stop
+                } | Should Throw 
+    
+            }
+            
+            It "Should throw an error when no files were found for SQLPackage"{
+                {
+                   Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive\NonExistingFolder -erroraction stop
+                } | Should Throw 
+    
+            }
+        }
         
-            $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+        Context "File counts"{
 
-            $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+            It "Should find one MSBuild.exe when searching MSBuild"{
+        
+                (Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive).count | Should BeExactly 1
+    
+            }
+            
+            It "Should find two SQLPackage.exe when searching SQLPackage"{
+    
+                (Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive).count | Should BeExactly 2
+    
+            } 
+    
+            It "Should find three total *.exe when searching Both"{
+            
+                (Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive).count | Should BeExactly 3
+    
+            }
+        }
+        
+        Context "Correct file paths"{
+            It "Should find find the correct path to MSbuild.exe"{
+        
+                $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
+    
+                $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
+    
+            } 
+    
+            It "Should find find the correct paths to SQLPackage.exe"{
+            
+                $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+    
+                $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
+                $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
+    
+            } 
+    
+            It "Should find find the correct paths to Both *.exe"{
+            
+                $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
+    
+                $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
+                $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
+                $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
+    
+            }
+            
+            It "Should not contain SQLPackage elements when looking for MSBuild"{
+            
+                $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
+    
+                $results | Should not contain "$TestDrive\exepath1\SQLPackage.exe"
+                $results | Should not contain "$TestDrive\exepath2\SQLPackage.exe"
+    
+            } 
+    
+            It "Should not contain MSBuild elements when looking for SQLPackage"{
+            
+                $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+    
+                $results | Should not contain "$TestDrive\exepath1\MSBuild.exe"
+    
+            } 
+    
+            It "Should never contain the dummy file when running MSBuild"{
+            
+                $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
+    
+                $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+    
+            }
+    
+            It "Should never contain the dummy file when running SQLPackage"{
+            
+                $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+    
+                $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+    
+            }
+             
+            It "Should never contain the dummy file when running Both"{
+            
+                $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
+    
+                $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+    
+            }
+        }
 
+          
+        Context "Throws" {
+            It "Should not Throw when searching MSBuild"{
+        
+                {Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive } | Should Not Throw
+    
+            }
+            
+            It "Should not Throw when searching SQLPackage"{
+            
+                {Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive } | Should Not Throw
+    
+            } 
+    
+            It "Should not Throw when searching Both"{
+            
+                {Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive } | Should Not Throw
+    
+            }
         }
          
-        It "Should never contain the dummy file when running Both"{
-        
-            $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
-
-            $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
-
-        }  
-
-        It "Should not Throw when searching MSBuild"{
-        
-            {Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive } | Should Not Throw
-
-        }
-        
-        It "Should not Throw when searching SQLPackage"{
-        
-            {Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive } | Should Not Throw
-
-        } 
-
-        It "Should not Throw when searching Both"{
-        
-            {Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive } | Should Not Throw
-
-        } 
 
         
     }
 
     Describe "Get-MSSQLCICDHelperFiletoBuildDeploy" -Tags Build {
     
-        
-
         #mock 1 of each type, dummyfile, a dir with multiple of the same and an empty dir
         # folders
         New-Item  -Path $TestDrive -Name Single -ItemType Directory
@@ -337,12 +394,17 @@ InModuleScope MSSQL-CICD-Helper {
         New-Item  -Path $TestDrive\Multiple\DBToIgnore.nonpublish.xml -ItemType File
         New-Item  -Path $TestDrive\Multiple\Itshouldignorethis.exe -ItemType File
         
-        Context "Empty and errors"{
+        Context "Mandatory Paramaters"{
 
-            It "Should throw an error when no parameters are entered"{
-                {
-                   Get-MSSQLCICDHelperFiletoBuildDeploy -erroraction stop
-                } | Should Throw
+            It "Parameter Typetofind should be mandatory"{
+
+                (Get-Command "Get-MSSQLCICDHelperFiletoBuildDeploy").Parameters['Typetofind'].Attributes.Mandatory | Should Be $true
+
+            }
+
+            It "Parameter Rootpath should be mandatory"{
+
+                (Get-Command "Get-MSSQLCICDHelperFiletoBuildDeploy").Parameters['Rootpath'].Attributes.Mandatory | Should Be $true
 
             }
         
@@ -352,6 +414,39 @@ InModuleScope MSSQL-CICD-Helper {
                 } | Should Throw 
 
             }
+
+            It "Should throw an error when a non-existing folder was entered for type Solution"{
+                {
+                    Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\NonExistingFolder -erroraction stop
+                 } | Should Throw 
+            }
+
+            It "Should throw an error when a non-existing folder was entered for type project"{
+                {
+                    Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\NonExistingFolder -erroraction stop
+                 } | Should Throw 
+            }
+
+            It "Should throw an error when a non-existing folder was entered for type DacPac"{
+                {
+                    Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\NonExistingFolder -erroraction stop
+                 } | Should Throw 
+            }
+
+            It "Should throw an error when a non-existing folder was entered for type PublishProfile"{
+                {
+                    Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\NonExistingFolder -erroraction stop
+                 } | Should Throw 
+            }
+
+            It "Should throw an error when a non-existing folder was entered for type DTSPac"{
+                {
+                    Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\NonExistingFolder -erroraction stop
+                 } | Should Throw 
+            }
+        }
+
+        Context "No File Found" {
 
             It "Should throw an error when no file has been found for type Solution"{
 
@@ -384,7 +479,9 @@ InModuleScope MSSQL-CICD-Helper {
             }
         }
 
-        Context "Folders with Single file" {
+        Context "Folders with Single file" {}
+
+        Context "File Counts" {
             #single files Count
             It "Should Find a single file for type Solution"{
 
@@ -419,6 +516,8 @@ InModuleScope MSSQL-CICD-Helper {
                (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single).count | Should BeExactly 1
 
             }
+        }
+        Context "Correct File Paths" {
             #file matches
             It "Single Filename match for type Solution"{
 
@@ -463,6 +562,8 @@ InModuleScope MSSQL-CICD-Helper {
                 $results.Fullname | Should contain "$TestDrive\Single\SSISPackages.dtspac"
 
             }
+        }
+        Context "Dummy Files" {
 
             #file matches
             It "Dummy Exclude Single for type Solution"{
@@ -518,7 +619,9 @@ InModuleScope MSSQL-CICD-Helper {
 
         }
 
-        Context "Folders with Multiple files" {
+        Context "Folders with Multiple files" {}
+
+        Context "File Counts" {
             #single files Count
             It "Should Find a single file in folder with Multiple files for type Solution"{
 
@@ -553,6 +656,8 @@ InModuleScope MSSQL-CICD-Helper {
                (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Multiple).count | Should BeExactly 1
 
             }
+        }
+        Context "Correct File Paths" {
             #file matches
             It "Multiple Filename match for type Solution"{
 
@@ -597,6 +702,8 @@ InModuleScope MSSQL-CICD-Helper {
                 $results.Fullname | Should contain "$TestDrive\Multiple\SSISPackages2.dtspac"
 
             }
+        }
+        Context "Dummy Files" {
 
             #file matches
             It "Multiple Dummy Exclude Single for type Solution"{
