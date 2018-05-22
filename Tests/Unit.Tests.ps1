@@ -205,18 +205,18 @@ InModuleScope MSSQL-CICD-Helper {
         
         $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
 
-        $results | Should Be "$TestDrive\exepath1\MSBuild.exe"
+        $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
 
         } 
 
-        #It "Should find find the correct paths to SQLPackage.exe"{
+        It "Should find find the correct paths to SQLPackage.exe"{
         
-        #$results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+        $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
 
-       # $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
-        #$results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
+        $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
+        $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
 
-        #} 
+        } 
 
         #It "Should find find the correct paths to Both .exe"{
         
@@ -227,6 +227,30 @@ InModuleScope MSSQL-CICD-Helper {
        # $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
 
        # } 
+
+        It "Should never contain the dummy file when running MSBuild"{
+        
+        $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
+
+        $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+
+        }
+
+        It "Should never contain the dummy file when running MSBuild"{
+        
+        $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+
+        $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+
+        }
+         
+        #It "Should never contain the dummy file when running MSBuild"{
+        
+        #$results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
+
+        #$results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+
+        #}  
 
         It "Should not Throw when searching MSBuild"{
         
