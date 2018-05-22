@@ -36,7 +36,7 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
     [cmdletbinding()]
     param(
         [Parameter(Mandatory=$true,
-               HelpMessage='What to find: *.sln, *.dacpac, *.publish.xml *.dtspac or *.sqlproject File. Options are: Solution, DacPac, DTSPack or Project',
+               HelpMessage='What to find: *.sln, *.dacpac, *.publish.xml *.dtspac or *.sqlproject File. Options are: Solution, DacPac, DTSPac or Project',
                Position=0)]
         [ValidateNotNullOrEmpty()]
         $typetofind,
