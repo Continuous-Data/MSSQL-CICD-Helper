@@ -201,13 +201,13 @@ InModuleScope MSSQL-CICD-Helper {
 
         } 
 
-        #It "Should find find the correct path to MSbuild.exe"{
+        It "Should find find the correct path to MSbuild.exe"{
         
-        #$results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
+        $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
 
-        #$results | Should contain "$TestDrive\exepath1\MSBuild.exe"
+        $results | Should Be "$TestDrive\exepath1\MSBuild.exe"
 
-        #} 
+        } 
 
         #It "Should find find the correct paths to SQLPackage.exe"{
         
