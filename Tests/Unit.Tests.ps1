@@ -410,7 +410,7 @@ InModuleScope MSSQL-CICD-Helper {
 
             $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
 
-            $results | Should contain "$TestDrive\Single\Solution.sln"
+            $results.Fullname | Should contain "$TestDrive\Single\Solution.sln"
 
         }
 
