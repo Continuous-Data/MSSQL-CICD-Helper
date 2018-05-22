@@ -62,6 +62,7 @@ Function Get-MSSQLCICDHelperPaths {
     )
     
     $exestofind = @()
+    $results = @()
 
     switch($typetofind){
         "MSBuild"{
@@ -80,7 +81,7 @@ Function Get-MSSQLCICDHelperPaths {
         }
     }
     Write-verbose "searching for $exestofind in $rootpath"
-    $results = @{}
+    
 
     $exestofind | ForEach-Object{
         $results += Get-ChildItem -Path $rootpath -filter $_ -Recurse -ErrorAction SilentlyContinue
