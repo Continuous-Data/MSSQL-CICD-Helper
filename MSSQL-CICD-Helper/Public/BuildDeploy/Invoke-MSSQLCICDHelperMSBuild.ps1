@@ -183,7 +183,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
         if($UseInvokeMSBuildModule){
             if(-not(Get-Module Invoke-MSBuild)){
                 Write-Error 'Invoke-MSBuild was not found on this system. Make sure it is installed with Install-Module Invoke-MSBuild'
-                break;
+                throw;
             }
             
         }
@@ -197,7 +197,13 @@ function Invoke-MSSQLCICDHelperMSBuild {
             $filename = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind 'Solution' -RootPath $curdir | Get-ChildItem
         }
         else{
-            $filename = Get-ChildItem $filename
+            if(-not(Test-Path $filename)){
+                Write-Error "File $filename not found."
+                throw;
+            }else{
+                $filename = Get-ChildItem $filename
+            }
+            
         }
         
         Write-Verbose "The following file will be built: $($filename.Name) located in path $($filename.DirectoryName)"
