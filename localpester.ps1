@@ -33,7 +33,7 @@ foreach($module in $modules) {
 Set-BuildEnvironment
 
 "  InvokeBuild"
-Invoke-Build $Task -Result result -Verbose
+Invoke-Build $Task -Result result #-Verbose
 if ($Result.Error)
 {
     exit 1
