@@ -312,19 +312,20 @@ InModuleScope MSSQL-CICD-Helper {
         New-Item  -Path $TestDrive\Single\Itshouldignorethis.exe -ItemType File
 
         # Multiple
-        New-Item  -Path $TestDrive\Multiple\Solution.sln -ItemType File
-        New-Item  -Path $TestDrive\Multiple\SQLProject.sqlproj -ItemType File
-        New-Item  -Path $TestDrive\Multiple\DBToDeploy.dacpac -ItemType File
-        New-Item  -Path $TestDrive\Multiple\DBToDeploy.publish.xml -ItemType File
-        New-Item  -Path $TestDrive\Multiple\SSISPackages.dtspac -ItemType File
 
         New-Item  -Path $TestDrive\Multiple\Solution1.sln -ItemType File
         New-Item  -Path $TestDrive\Multiple\SQLProject1.sqlproj -ItemType File
         New-Item  -Path $TestDrive\Multiple\DBToDeploy1.dacpac -ItemType File
         New-Item  -Path $TestDrive\Multiple\DBToDeploy1.publish.xml -ItemType File
         New-Item  -Path $TestDrive\Multiple\SSISPackages1.dtspac -ItemType File
+
+        New-Item  -Path $TestDrive\Multiple\Solution.sln -ItemType File
+        New-Item  -Path $TestDrive\Multiple\SQLProject.sqlproj -ItemType File
+        New-Item  -Path $TestDrive\Multiple\DBToDeploy.dacpac -ItemType File
+        New-Item  -Path $TestDrive\Multiple\DBToDeploy.publish.xml -ItemType File
+        New-Item  -Path $TestDrive\Multiple\SSISPackages.dtspac -ItemType File
         
-        #To Ignore Singles
+        #To Ignore Multiple
         New-Item  -Path $TestDrive\Multiple\DBToIgnore.nonpublish.xml -ItemType File
         New-Item  -Path $TestDrive\Multiple\Itshouldignorethis.exe -ItemType File
         
