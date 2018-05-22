@@ -70,6 +70,11 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
         }
     }
 
+    if(-not(Test-Path $rootpath)){
+        Write-Error "$rootpath was not found"
+        throw;
+    }
+
     $results = Get-ChildItem -Path $rootpath -Filter $buildfilextension -Recurse -ErrorAction SilentlyContinue
     
     Write-Verbose "Found $($results.Count) $buildfilextension files in $rootpath"
