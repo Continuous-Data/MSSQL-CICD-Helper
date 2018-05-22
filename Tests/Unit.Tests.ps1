@@ -247,50 +247,166 @@ InModuleScope MSSQL-CICD-Helper {
 
         It "Should never contain the dummy file when running MSBuild"{
         
-        $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
+            $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
 
-        $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+            $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
 
         }
 
         It "Should never contain the dummy file when running SQLPackage"{
         
-        $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+            $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
 
-        $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+            $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
 
         }
          
         It "Should never contain the dummy file when running Both"{
         
-        $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
+            $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
 
-        $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+            $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
 
         }  
 
         It "Should not Throw when searching MSBuild"{
         
-        {Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive } | Should Not Throw
+            {Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive } | Should Not Throw
 
         }
         
         It "Should not Throw when searching SQLPackage"{
         
-        {Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive } | Should Not Throw
+            {Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive } | Should Not Throw
 
         } 
 
         It "Should not Throw when searching Both"{
         
-        {Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive } | Should Not Throw
+            {Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive } | Should Not Throw
 
         } 
 
         
     }
 
-    Describe "Get-MSSQLCICDHelperFiletoBuildDeploy" -Tags Build {}
+    Describe "Get-MSSQLCICDHelperFiletoBuildDeploy" -Tags Build {
+    
+        It "Should throw an error when no parameters are entered"{
+            {
+               Get-MSSQLCICDHelperFiletoBuildDeploy -erroraction stop
+            } | Should Throw
+
+        }
+        
+        It "Should throw an error when no valid typetofind was entered"{
+            {
+               Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Pester -rootpath $TestDrive -erroraction stop
+            } | Should Throw 
+
+        }
+
+        #mock 1 of each type, dummyfile, a dir with multiple of the same and an empty dir
+        # folders
+        New-Item  -Path $TestDrive -Name Single -ItemType Directory
+        New-Item  -Path $TestDrive -Name Multiple -ItemType Directory
+        New-Item  -Path $TestDrive -Name Empty -ItemType Directory
+
+        # Singles
+        New-Item  -Path $TestDrive\Single\Solution.sln -ItemType File
+        New-Item  -Path $TestDrive\Single\SQLProject.sqlproj -ItemType File
+        New-Item  -Path $TestDrive\Single\DBToDeploy.dacpac -ItemType File
+        New-Item  -Path $TestDrive\Single\DBToDeploy.publish.xml -ItemType File
+        New-Item  -Path $TestDrive\Single\SSISPackages.dtspac -ItemType File
+        
+        #To Ignore Singles
+        New-Item  -Path $TestDrive\Single\DBToIgnore.nonpublish.xml -ItemType File
+        New-Item  -Path $TestDrive\Single\Itshouldignorethis.exe -ItemType File
+
+        # Multiple
+        New-Item  -Path $TestDrive\Multiple\Solution.sln -ItemType File
+        New-Item  -Path $TestDrive\Multiple\SQLProject.sqlproj -ItemType File
+        New-Item  -Path $TestDrive\Multiple\DBToDeploy.dacpac -ItemType File
+        New-Item  -Path $TestDrive\Multiple\DBToDeploy.publish.xml -ItemType File
+        New-Item  -Path $TestDrive\Multiple\SSISPackages.dtspac -ItemType File
+
+        New-Item  -Path $TestDrive\Multiple\Solution1.sln -ItemType File
+        New-Item  -Path $TestDrive\Multiple\SQLProject1.sqlproj -ItemType File
+        New-Item  -Path $TestDrive\Multiple\DBToDeploy1.dacpac -ItemType File
+        New-Item  -Path $TestDrive\Multiple\DBToDeploy1.publish.xml -ItemType File
+        New-Item  -Path $TestDrive\Multiple\SSISPackages1.dtspac -ItemType File
+        
+        #To Ignore Singles
+        New-Item  -Path $TestDrive\Multiple\DBToIgnore.nonpublish.xml -ItemType File
+        New-Item  -Path $TestDrive\Multiple\Itshouldignorethis.exe -ItemType File
+        
+        # empty dir
+        It "Should throw an error when no file has been found for type Solution"{
+
+           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+
+        }
+
+        It "Should throw an error when no file has been found for type Solution"{
+
+           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+
+        }
+
+        It "Should throw an error when no file has been found for type Solution"{
+
+           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+
+        }
+
+        It "Should throw an error when no file has been found for type Solution"{
+
+           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+
+        }
+
+        It "Should throw an error when no file has been found for type Solution"{
+
+           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+
+        }
+
+        #single files Count
+        It "Should throw an error when no file has been found for type Solution"{
+
+           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive).count | Should BeExactly 1
+
+        }
+
+        It "Should throw an error when no file has been found for type Solution"{
+
+          
+           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive).count | Should BeExactly 1
+
+        }
+
+        It "Should throw an error when no file has been found for type Solution"{
+
+           
+           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive).count | Should BeExactly 1
+
+        }
+
+        It "Should throw an error when no file has been found for type Solution"{
+
+           
+           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive).count | Should BeExactly 1
+
+        }
+
+        It "Should throw an error when no file has been found for type Solution"{
+
+           
+           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive).count | Should BeExactly 1
+
+        }
+    
+    }
 
     Describe "Invoke-MSSQLCICDHelperMSBuild" -Tags Build {}
 
