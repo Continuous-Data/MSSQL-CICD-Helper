@@ -173,7 +173,7 @@ InModuleScope MSSQL-CICD-Helper {
 
         }
 
-        #mock 1 MSBuild.exe and 2 SQLPackage.exe
+        #mock 1 MSBuild.exe and 2 SQLPackage.exe 1 non existing file.
 
         New-Item  -Path $TestDrive -Name ExePath1 -ItemType Directory
         New-Item  -Path $TestDrive -Name ExePath2 -ItemType Directory
@@ -185,48 +185,65 @@ InModuleScope MSSQL-CICD-Helper {
         
         It "Should find one MSBuild.exe when searching MSBuild"{
         
-        (Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive).count | Should Be 1
+            (Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive).count | Should BeExactly 1
 
         }
         
         It "Should find two SQLPackage.exe when searching SQLPackage"{
 
-        (Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive).count | Should Be 2
+            (Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive).count | Should BeExactly 2
 
         } 
 
-        It "Should find three SQLPackage.exe when searching Both"{
+        It "Should find three total *.exe when searching Both"{
         
-        (Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive).count | Should Be 3
+            (Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive).count | Should BeExactly 3
 
         } 
 
         It "Should find find the correct path to MSbuild.exe"{
         
-        $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
+            $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
 
-        $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
+            $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
 
         } 
 
         It "Should find find the correct paths to SQLPackage.exe"{
         
-        $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+            $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
 
-        $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
-        $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
+            $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
+            $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
 
         } 
 
-        #It "Should find find the correct paths to Both .exe"{
+        It "Should find find the correct paths to Both *.exe"{
         
-        #$results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
+            $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
 
-        #$results | Should contain "$TestDrive\exepath1\MSBuild.exe"
-        ##$results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
-       # $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
+            $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
+            $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
+            $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
 
-       # } 
+        }
+        
+        It "Should not contain SQLPackage elements when looking for MSBuild"{
+        
+            $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
+
+            $results | Should not contain "$TestDrive\exepath1\SQLPackage.exe"
+            $results | Should not contain "$TestDrive\exepath2\SQLPackage.exe"
+
+        } 
+
+        It "Should not contain MSBuild elements when looking for SQLPackage"{
+        
+            $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
+
+            $results | Should not contain "$TestDrive\exepath1\MSBuild.exe"
+
+        } 
 
         It "Should never contain the dummy file when running MSBuild"{
         
@@ -236,7 +253,7 @@ InModuleScope MSSQL-CICD-Helper {
 
         }
 
-        It "Should never contain the dummy file when running MSBuild"{
+        It "Should never contain the dummy file when running SQLPackage"{
         
         $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
 
@@ -244,13 +261,13 @@ InModuleScope MSSQL-CICD-Helper {
 
         }
          
-        #It "Should never contain the dummy file when running MSBuild"{
+        It "Should never contain the dummy file when running Both"{
         
-        #$results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
+        $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
 
-        #$results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
+        $results | Should Not contain "$TestDrive\ExePath1\Itshouldignorethis.exe"
 
-        #}  
+        }  
 
         It "Should not Throw when searching MSBuild"{
         
