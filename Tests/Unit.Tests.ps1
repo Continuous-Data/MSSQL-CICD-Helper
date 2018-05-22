@@ -340,165 +340,303 @@ InModuleScope MSSQL-CICD-Helper {
         New-Item  -Path $TestDrive\Multiple\DBToIgnore.nonpublish.xml -ItemType File
         New-Item  -Path $TestDrive\Multiple\Itshouldignorethis.exe -ItemType File
         
-        # empty dir
-        It "Should throw an error when no file has been found for type Solution"{
+        Context "Empty and errors"{
+            It "Should throw an error when no file has been found for type Solution"{
 
-           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+               { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
 
+            }
+
+            It "Should throw an error when no file has been found for type project"{
+
+               { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+
+            }
+
+            It "Should throw an error when no file has been found for type DacPac"{
+
+               { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+
+            }
+
+            It "Should throw an error when no file has been found for type PublishProfile"{
+
+               { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+
+            }
+
+            It "Should throw an error when no file has been found for type DTSPac"{
+
+               { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+
+            }
         }
 
-        It "Should throw an error when no file has been found for type project"{
+        Context "Folders with Single file" {
+            #single files Count
+            It "Should Find a single file for type Solution"{
 
-           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single).count | Should BeExactly 1
 
-        }
+            }
 
-        It "Should throw an error when no file has been found for type DacPac"{
-
-           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
-
-        }
-
-        It "Should throw an error when no file has been found for type PublishProfile"{
-
-           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
-
-        }
-
-        It "Should throw an error when no file has been found for type DTSPac"{
-
-           { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
-
-        }
-
-        #single files Count
-        It "Should Find a single file for type Solution"{
-
-           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single).count | Should BeExactly 1
-
-        }
-
-        It "Should Find a single file for type project"{
+            It "Should Find a single file for type project"{
 
           
-           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive\Single).count | Should BeExactly 1
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive\Single).count | Should BeExactly 1
 
-        }
+            }
 
-        It "Should Find a single file for type DacPac"{
-
-           
-           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single).count | Should BeExactly 1
-
-        }
-
-        It "Should Find a single file for type PublishProfile"{
+            It "Should Find a single file for type DacPac"{
 
            
-           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single).count | Should BeExactly 1
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single).count | Should BeExactly 1
 
-        }
+            }
 
-        It "Should Find a single file for type DTSPac"{
+            It "Should Find a single file for type PublishProfile"{
 
            
-           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive).count | Should BeExactly 1
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single).count | Should BeExactly 1
 
-        }
-        #file matches
-        It "Filename match for type Solution"{
+            }
 
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
+            It "Should Find a single file for type DTSPac"{
 
-            $results.Fullname | Should contain "$TestDrive\Single\Solution.sln"
+           
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive).count | Should BeExactly 1
 
-        }
+            }
+            #file matches
+            It "Filename match for type Solution"{
 
-        It "Filename match for type project"{
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
+
+                $results.Fullname | Should contain "$TestDrive\Single\Solution.sln"
+
+            }
+
+            It "Filename match for type project"{
 
           
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
 
-            $results.Fullname | Should contain "$TestDrive\Single\SQLProject.sqlproj"
+                $results.Fullname | Should contain "$TestDrive\Single\SQLProject.sqlproj"
 
-        }
+            }
 
-        It "Filename match for type DacPac"{
-
-           
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
-
-            $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.dacpac"
-
-        }
-
-        It "Filename match for type PublishProfile"{
+            It "Filename match for type DacPac"{
 
            
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
 
-            $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.publish.xml"
+                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.dacpac"
 
-        }
+            }
 
-        It "Filename match for type DTSPac"{
+            It "Filename match for type PublishProfile"{
 
            
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
 
-            $results.Fullname | Should contain "$TestDrive\Single\SSISPackages.dtspac"
+                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.publish.xml"
 
-        }
+            }
 
-        #file matches
-        It "Dummy Exclude Single for type Solution"{
+            It "Filename match for type DTSPac"{
 
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
+           
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
 
-            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
-            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+                $results.Fullname | Should contain "$TestDrive\Single\SSISPackages.dtspac"
 
-        }
+            }
 
-        It "Dummy Exclude Single for type project"{
+            #file matches
+            It "Dummy Exclude Single for type Solution"{
+
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
+
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+            }
+
+            It "Dummy Exclude Single for type project"{
 
           
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
 
-            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
-            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
 
-        }
+            }
 
-        It "Dummy Exclude Single for type DacPac"{
-
-           
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
-
-            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
-            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
-
-        }
-
-        It "Dummy Exclude Single for type PublishProfile"{
+            It "Dummy Exclude Single for type DacPac"{
 
            
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
 
-            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
-            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
 
-        }
+            }
 
-        It "Dummy Exclude Single for type DTSPac"{
+            It "Dummy Exclude Single for type PublishProfile"{
 
            
-            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
 
-            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
-            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+            }
+
+            It "Dummy Exclude Single for type DTSPac"{
+
+           
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
+
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
 
    
+
+            }
+
+        }
+
+        Context "Folders with Multiple files" {
+            #single files Count
+            It "Should Find a single file for type Solution"{
+
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single).count | Should BeExactly 1
+
+            }
+
+            It "Should Find a single file for type project"{
+
+          
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive\Single).count | Should BeExactly 1
+
+            }
+
+            It "Should Find a single file for type DacPac"{
+
+           
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single).count | Should BeExactly 1
+
+            }
+
+            It "Should Find a single file for type PublishProfile"{
+
+           
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single).count | Should BeExactly 1
+
+            }
+
+            It "Should Find a single file for type DTSPac"{
+
+           
+               (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive).count | Should BeExactly 1
+
+            }
+            #file matches
+            It "Filename match for type Solution"{
+
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
+
+                $results.Fullname | Should contain "$TestDrive\Single\Solution.sln"
+
+            }
+
+            It "Filename match for type project"{
+
+          
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
+
+                $results.Fullname | Should contain "$TestDrive\Single\SQLProject.sqlproj"
+
+            }
+
+            It "Filename match for type DacPac"{
+
+           
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
+
+                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.dacpac"
+
+            }
+
+            It "Filename match for type PublishProfile"{
+
+           
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
+
+                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.publish.xml"
+
+            }
+
+            It "Filename match for type DTSPac"{
+
+           
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
+
+                $results.Fullname | Should contain "$TestDrive\Single\SSISPackages.dtspac"
+
+            }
+
+            #file matches
+            It "Dummy Exclude Single for type Solution"{
+
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
+
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+            }
+
+            It "Dummy Exclude Single for type project"{
+
+          
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
+
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+            }
+
+            It "Dummy Exclude Single for type DacPac"{
+
+           
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
+
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+            }
+
+            It "Dummy Exclude Single for type PublishProfile"{
+
+           
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
+
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+            }
+
+            It "Dummy Exclude Single for type DTSPac"{
+
+           
+                $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
+
+                $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+                $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+   
+
+            }
 
         }
     
