@@ -761,9 +761,71 @@ InModuleScope MSSQL-CICD-Helper {
     
     }
 
-    Describe "Invoke-MSSQLCICDHelperMSBuild" -Tags Build {}
+    Describe "Invoke-MSSQLCICDHelperMSBuild" -Tags Build {
+        Context "Errors & Dependencies" {
+            #Context "test nested context"{}
+            ############################
+            
+            ############################
+            mock Get-Module {$false}
 
-    Describe "Invoke-MSSQLCICDHelperSQLPackage" -Tags Build {}
+            It "Should throw when Invoke-MSBuild is not Available"{
+                {Invoke-MSSQLCICDHelperMSBuild -UseInvokeMSBuildModule -erroraction stop} | Should throw
+            }
+
+            New-Item  -Path $TestDrive -Name Solution -ItemType Directory
+            New-Item  -Path $TestDrive -Name Empty -ItemType Directory
+
+            New-Item  -Path $TestDrive\MSBuild.exe -ItemType File
+            New-Item  -Path $TestDrive\SQLPackage.exe -ItemType File
+
+            New-Item  -Path $TestDrive\Solution\Solution.sln -ItemType File
+
+            $filetobuild = "$TestDrive\Solution\Solution.sln"
+
+            Mock currentversion {'V1.0.0'}
+
+            $configpath = "$TestDrive\PesterTest.xml"
+            #$ImportCLIXML = Get-Command Import-Clixml
+            $buildpath = "$Testdrive\MSBuild.exe"
+            $sqlpath = "$testdrive\SQLPackage.exe"
+            $currentversion = currentversion
+
+            $export = @{
+                MSBuildExe = $buildpath
+                SQLPackageExe = $sqlpath
+                Version = $currentversion
+            }
+
+            $export | Export-Clixml -path $configpath
+
+            $mockresult = Import-Clixml $configpath
+
+            Mock ImportConfig {$mockresult}
+
+            it "Should throw an error on an empty path" {
+                {Invoke-MSSQLCICDHelperMSBuild -filename $testRoot\NonExisting.sln -erroraction stop} | Should throw
+
+            }
+            mock Get-MSSQLCICDHelperFiletoBuildDeploy {throw}
+            #mock Get-ChildItem {}
+            mock Invoke-Expression {throw}
+
+            it "Should throw when an exception occurs with manual filename " {
+
+                {Invoke-MSSQLCICDHelperMSBuild -filename $filetobuild -erroraction stop} | Should throw
+            }
+
+            it "Should throw when an exception occurs with Autodiscovery filename" {
+
+                {Invoke-MSSQLCICDHelperMSBuild -erroraction stop} | Should throw
+            }
+        }
+    }
+
+    Describe "Invoke-MSSQLCICDHelperSQLPackage" -Tags Build {
+
+    }
 
 }
 
