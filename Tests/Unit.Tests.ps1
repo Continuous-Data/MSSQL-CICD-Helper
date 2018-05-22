@@ -186,7 +186,7 @@ InModuleScope MSSQL-CICD-Helper {
         
         It "Should find two SQLPackage.exe when searching SQLPackage"{
         
-        (Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive).count | Should HaveCount 2
+        {$results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive} | Should HaveCount 2
 
         } 
 
