@@ -412,47 +412,47 @@ InModuleScope MSSQL-CICD-Helper {
 
             }
             #file matches
-            It "Filename match for type Solution"{
+            It "Single Filename match for type Solution"{
 
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\Solution.sln"
+                $results.Fullname | Should contain "$TestDrive\Single\Solution2.sln"
 
             }
 
-            It "Filename match for type project"{
+            It "Single Filename match for type project"{
 
           
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\SQLProject.sqlproj"
+                $results.Fullname | Should contain "$TestDrive\Single\SQLProject2.sqlproj"
 
             }
 
-            It "Filename match for type DacPac"{
+            It "Single Filename match for type DacPac"{
 
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.dacpac"
+                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy2.dacpac"
 
             }
 
-            It "Filename match for type PublishProfile"{
+            It "Single Filename match for type PublishProfile"{
 
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.publish.xml"
+                $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy2.publish.xml"
 
             }
 
-            It "Filename match for type DTSPac"{
+            It "Single Filename match for type DTSPac"{
 
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
 
-                $results.Fullname | Should contain "$TestDrive\Single\SSISPackages.dtspac"
+                $results.Fullname | Should contain "$TestDrive\Single\SSISPackages2.dtspac"
 
             }
 
@@ -512,41 +512,41 @@ InModuleScope MSSQL-CICD-Helper {
 
         Context "Folders with Multiple files" {
             #single files Count
-            It "Should Find a single file for type Solution"{
+            It "Should Find a single file in folder with Multiple files for type Solution"{
 
                (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Multiple).count | Should BeExactly 1
 
             }
 
-            It "Should Find a single file for type project"{
+            It "Should Find a single file in folder with Multiple files for type project"{
 
           
                (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive\Multiple).count | Should BeExactly 1
 
             }
 
-            It "Should Find a single file for type DacPac"{
+            It "Should Find a single file in folder with Multiple files for type DacPac"{
 
            
                (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Multiple).count | Should BeExactly 1
 
             }
 
-            It "Should Find a single file for type PublishProfile"{
+            It "Should Find a single file in folder with Multiple files for type PublishProfile"{
 
            
                (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Multiple).count | Should BeExactly 1
 
             }
 
-            It "Should Find a single file for type DTSPac"{
+            It "Should Find a single file in folder with Multiple files for type DTSPac"{
 
            
                (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Multiple).count | Should BeExactly 1
 
             }
             #file matches
-            It "Filename match for type Solution"{
+            It "Multiple Filename match for type Solution"{
 
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Multiple
 
@@ -554,7 +554,7 @@ InModuleScope MSSQL-CICD-Helper {
 
             }
 
-            It "Filename match for type project"{
+            It "Multiple Filename match for type project"{
 
           
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Multiple
@@ -563,7 +563,7 @@ InModuleScope MSSQL-CICD-Helper {
 
             }
 
-            It "Filename match for type DacPac"{
+            It "Multiple Filename match for type DacPac"{
 
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Multiple
@@ -572,7 +572,7 @@ InModuleScope MSSQL-CICD-Helper {
 
             }
 
-            It "Filename match for type PublishProfile"{
+            It "Multiple Filename match for type PublishProfile"{
 
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Multiple
@@ -581,7 +581,7 @@ InModuleScope MSSQL-CICD-Helper {
 
             }
 
-            It "Filename match for type DTSPac"{
+            It "Multiple Filename match for type DTSPac"{
 
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Multiple
@@ -591,7 +591,7 @@ InModuleScope MSSQL-CICD-Helper {
             }
 
             #file matches
-            It "Dummy Exclude Single for type Solution"{
+            It "Multiple Dummy Exclude Single for type Solution"{
 
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Multiple
 
@@ -600,7 +600,7 @@ InModuleScope MSSQL-CICD-Helper {
 
             }
 
-            It "Dummy Exclude Single for type project"{
+            It "Multiple Dummy Exclude Single for type project"{
 
           
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Multiple
@@ -610,7 +610,7 @@ InModuleScope MSSQL-CICD-Helper {
 
             }
 
-            It "Dummy Exclude Single for type DacPac"{
+            It "Multiple Dummy Exclude Single for type DacPac"{
 
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Multiple
@@ -620,7 +620,7 @@ InModuleScope MSSQL-CICD-Helper {
 
             }
 
-            It "Dummy Exclude Single for type PublishProfile"{
+            It "Multiple Dummy Exclude Single for type PublishProfile"{
 
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Multiple
@@ -630,7 +630,7 @@ InModuleScope MSSQL-CICD-Helper {
 
             }
 
-            It "Dummy Exclude Single for type DTSPac"{
+            It "Multiple Dummy Exclude Single for type DTSPac"{
 
            
                 $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Multiple
