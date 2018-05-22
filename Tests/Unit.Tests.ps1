@@ -405,7 +405,7 @@ InModuleScope MSSQL-CICD-Helper {
            (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive).count | Should BeExactly 1
 
         }
-        ##############
+        #file matches
         It "Filename match for type Solution"{
 
             $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
@@ -417,36 +417,88 @@ InModuleScope MSSQL-CICD-Helper {
         It "Filename match for type project"{
 
           
-           $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
 
-            $results | Should contain "$TestDrive\Single\SQLProject.sqlproj"
+            $results.Fullname | Should contain "$TestDrive\Single\SQLProject.sqlproj"
 
         }
 
         It "Filename match for type DacPac"{
 
            
-           $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
 
-            $results | Should contain "$TestDrive\Single\DBToDeploy.dacpac"
+            $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.dacpac"
 
         }
 
         It "Filename match for type PublishProfile"{
 
            
-           $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
 
-            $results | Should contain "$TestDrive\Single\DBToDeploy.publish.xml"
+            $results.Fullname | Should contain "$TestDrive\Single\DBToDeploy.publish.xml"
 
         }
 
         It "Filename match for type DTSPac"{
 
            
-           $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
 
-            $results | Should contain "$TestDrive\Single\SSISPackages.dtspac"
+            $results.Fullname | Should contain "$TestDrive\Single\SSISPackages.dtspac"
+
+        }
+
+        #file matches
+        It "Dummy Exclude Single for type Solution"{
+
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
+
+            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+        }
+
+        It "Dummy Exclude Single for type project"{
+
+          
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
+
+            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+        }
+
+        It "Dummy Exclude Single for type DacPac"{
+
+           
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
+
+            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+        }
+
+        It "Dummy Exclude Single for type PublishProfile"{
+
+           
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
+
+            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+        }
+
+        It "Dummy Exclude Single for type DTSPac"{
+
+           
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
+
+            $results.Fullname | Should not contain "$TestDrive\Single\DBToIgnore.nonpublish.xml"
+            $results.Fullname | Should not contain "$TestDrive\Single\Itshouldignorethis.exe"
+
+   
 
         }
     
