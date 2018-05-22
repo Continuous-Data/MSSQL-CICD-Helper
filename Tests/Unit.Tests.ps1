@@ -200,7 +200,7 @@ InModuleScope MSSQL-CICD-Helper {
         
         $results = Get-MSSQLCICDHelperPaths -typetofind MSBuild -rootpath $TestDrive
 
-        $results | Should be "$TestDrive\exepath1\MSBuild.exe"
+        $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
 
         } 
 
@@ -208,8 +208,8 @@ InModuleScope MSSQL-CICD-Helper {
         
         $results = Get-MSSQLCICDHelperPaths -typetofind SQLPackage -rootpath $TestDrive
 
-        $results | Should be "$TestDrive\exepath1\SQLPackage.exe"
-        $results | Should be "$TestDrive\exepath2\SQLPackage.exe"
+        $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
+        $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
 
         } 
 
@@ -217,9 +217,9 @@ InModuleScope MSSQL-CICD-Helper {
         
         $results = Get-MSSQLCICDHelperPaths -typetofind Both -rootpath $TestDrive
 
-        $results | Should be "$TestDrive\exepath1\MSBuild.exe"
-        $results | Should be "$TestDrive\exepath1\SQLPackage.exe"
-        $results | Should be "$TestDrive\exepath2\SQLPackage.exe"
+        $results | Should contain "$TestDrive\exepath1\MSBuild.exe"
+        $results | Should contain "$TestDrive\exepath1\SQLPackage.exe"
+        $results | Should contain "$TestDrive\exepath2\SQLPackage.exe"
 
         } 
 
