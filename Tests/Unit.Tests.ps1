@@ -174,9 +174,9 @@ InModuleScope MSSQL-CICD-Helper {
         }
 
         #mock 1 MSBuild.exe and 2 SQLPackage.exe
-        New-Item  -Path $TestDrive\exepath1\MSBuild.exe -ItemType File
-        New-Item  -Path $TestDrive\exepath2\SQLPackage.exe -ItemType File
-        New-Item  -Path $TestDrive\exepath3\SQLPackage.exe -ItemType File
+        New-Item  -Path $TestDrive\MSBuild.exe -ItemType File
+        New-Item  -Path $TestDrive\SQLPackage.exe -ItemType File
+        New-Item  -Path $TestDrive\Itshouldignorethis.exe -ItemType File
         
         It "Should find one MSBuild.exe when searching MSBuild"{
         
