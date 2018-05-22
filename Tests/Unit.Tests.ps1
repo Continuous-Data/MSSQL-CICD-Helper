@@ -319,6 +319,15 @@ InModuleScope MSSQL-CICD-Helper {
         New-Item  -Path $TestDrive\Multiple\DBToDeploy1.publish.xml -ItemType File
         New-Item  -Path $TestDrive\Multiple\SSISPackages1.dtspac -ItemType File
 
+        ("$TestDrive\Multiple\Solution1.sln").LastWriteTime = (Get-Date).AddDays(-1-$i) 
+        ("$TestDrive\Multiple\SQLProject1.sqlproj").LastWriteTime = (Get-Date).AddDays(-1-$i) 
+        ("$TestDrive\Multiple\DBToDeploy1.dacpac").LastWriteTime = (Get-Date).AddDays(-1-$i) 
+        ("$TestDrive\Multiple\DBToDeploy1.publish.xml").LastWriteTime = (Get-Date).AddDays(-1-$i)
+        ("$TestDrive\Multiple\SSISPackages1.dtspac").LastWriteTime = (Get-Date).AddDays(-1-$i)
+
+
+        #$file.LastWriteTime = (Get-Date).AddDays(-1-$i)
+
         New-Item  -Path $TestDrive\Multiple\Solution2.sln -ItemType File
         New-Item  -Path $TestDrive\Multiple\SQLProject2.sqlproj -ItemType File
         New-Item  -Path $TestDrive\Multiple\DBToDeploy2.dacpac -ItemType File
