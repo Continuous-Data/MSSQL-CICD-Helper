@@ -347,62 +347,106 @@ InModuleScope MSSQL-CICD-Helper {
 
         }
 
-        It "Should throw an error when no file has been found for type Solution"{
+        It "Should throw an error when no file has been found for type project"{
 
            { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
 
         }
 
-        It "Should throw an error when no file has been found for type Solution"{
+        It "Should throw an error when no file has been found for type DacPac"{
 
            { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
 
         }
 
-        It "Should throw an error when no file has been found for type Solution"{
+        It "Should throw an error when no file has been found for type PublishProfile"{
 
            { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
 
         }
 
-        It "Should throw an error when no file has been found for type Solution"{
+        It "Should throw an error when no file has been found for type DTSPac"{
 
            { Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Empty -erroraction stop } | Should Throw 
 
         }
 
         #single files Count
-        It "Should throw an error when no file has been found for type Solution"{
+        It "Should Find a single file for type Solution"{
 
-           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive).count | Should BeExactly 1
+           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single).count | Should BeExactly 1
 
         }
 
-        It "Should throw an error when no file has been found for type Solution"{
+        It "Should Find a single file for type project"{
 
           
-           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive).count | Should BeExactly 1
+           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind project -rootpath $TestDrive\Single).count | Should BeExactly 1
 
         }
 
-        It "Should throw an error when no file has been found for type Solution"{
+        It "Should Find a single file for type DacPac"{
 
            
-           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive).count | Should BeExactly 1
+           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single).count | Should BeExactly 1
 
         }
 
-        It "Should throw an error when no file has been found for type Solution"{
+        It "Should Find a single file for type PublishProfile"{
 
            
-           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive).count | Should BeExactly 1
+           (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single).count | Should BeExactly 1
 
         }
 
-        It "Should throw an error when no file has been found for type Solution"{
+        It "Should Find a single file for type DTSPac"{
 
            
            (Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive).count | Should BeExactly 1
+
+        }
+        ##############
+        It "Filename match for type Solution"{
+
+            $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Solution -rootpath $TestDrive\Single
+
+            $results | Should contain "$TestDrive\Single\Solution.sln"
+
+        }
+
+        It "Filename match for type project"{
+
+          
+           $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind Project -rootpath $TestDrive\Single
+
+            $results | Should contain "$TestDrive\Single\SQLProject.sqlproj"
+
+        }
+
+        It "Filename match for type DacPac"{
+
+           
+           $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DacPac -rootpath $TestDrive\Single
+
+            $results | Should contain "$TestDrive\Single\DBToDeploy.dacpac"
+
+        }
+
+        It "Filename match for type PublishProfile"{
+
+           
+           $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind PublishProfile -rootpath $TestDrive\Single
+
+            $results | Should contain "$TestDrive\Single\DBToDeploy.publish.xml"
+
+        }
+
+        It "Filename match for type DTSPac"{
+
+           
+           $results = Get-MSSQLCICDHelperFiletoBuildDeploy -typetofind DTSPac -rootpath $TestDrive\Single
+
+            $results | Should contain "$TestDrive\Single\SSISPackages.dtspac"
 
         }
     
