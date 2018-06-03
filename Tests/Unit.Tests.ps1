@@ -760,7 +760,10 @@ InModuleScope MSSQL-CICD-Helper {
         }
     
     }
+    Describe "Invoke-Cmd" -Tags Build {
 
+    }
+    
     Describe "Invoke-MSSQLCICDHelperMSBuild" -Tags Build {
         Context "Errors & Dependencies" {
             #Context "test nested context"{}
