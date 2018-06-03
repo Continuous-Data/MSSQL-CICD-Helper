@@ -811,10 +811,10 @@ InModuleScope MSSQL-CICD-Helper {
             #mock Get-ChildItem {}
             mock Invoke-Expression {throw}
 
-            it "Should throw when an exception occurs with manual filename " {
+            # it "Should throw when an exception occurs with manual filename " {
 
-                {Invoke-MSSQLCICDHelperMSBuild -filename $filetobuild -erroraction stop} | Should throw
-            }
+            #     {Invoke-MSSQLCICDHelperMSBuild -filename $filetobuild -erroraction stop} | Should throw
+            # }
 
             it "Should throw when an exception occurs with Autodiscovery filename" {
 
