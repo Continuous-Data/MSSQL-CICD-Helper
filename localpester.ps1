@@ -12,8 +12,8 @@ param ($Task = 'LocalPester')
 # Grab nuget bits, install modules, set build variables, start build.
 "  Install Dependent Modules"
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
-Install-Module InvokeBuild, BuildHelpers, PSDeploy, PSScriptAnalyzer, PlatyPS -force -Scope CurrentUser
-Install-Module PSScriptAnalyzer, Pester -Force -SkipPublisherCheck -Scope CurrentUser
+Install-Module InvokeBuild, BuildHelpers, PSDeploy, PlatyPS -force -Scope CurrentUser
+Install-Module PSScriptAnalyzer, Pester-Force -SkipPublisherCheck -Scope CurrentUser
 
 "  Import Dependent Modules"
 $modules = New-Object System.Collections.ArrayList
