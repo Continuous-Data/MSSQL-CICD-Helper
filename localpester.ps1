@@ -7,8 +7,8 @@ Derived from scripts written by Warren F. (RamblingCookieMonster)
 [cmdletbinding()]
 param ($Task = 'LocalPester')
 "Starting build"
-" Installing latest NuGet Provider"
-Install-PackageProvider Nuget -MinimumVersion 2.8.5.201 –Force
+# " Installing latest NuGet Provider"
+# Install-PackageProvider Nuget -Force
 # Grab nuget bits, install modules, set build variables, start build.
 "  Install Dependent Modules"
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
