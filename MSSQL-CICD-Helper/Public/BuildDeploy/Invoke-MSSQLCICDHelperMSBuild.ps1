@@ -231,7 +231,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
             #Write-Verbose "Command to be Executed is: cmd.exe $commandtoexecute"
             $result.CommandUsedToBuild = "Command to be Executed is: cmd.exe $commandtoexecute"
 
-            Invoke-Cmd -arguments $CommandtoExecute -logfile $processlogfile -errorlogfile $processerrorlogfile
+            $processoutput = Invoke-Cmd -arguments $CommandtoExecute -logfile $processlogfile -errorlogfile $processerrorlogfile
 
         }else{
             $CommandtoExecute = "Invoke-MSBuild -Path $($filename.FullName) -logdirectory $($logbase)"
@@ -248,7 +248,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
             Write-verbose "Starting Invoke-MSBuild ..."
             
             #$result.MsBuildProcess = Invoke-Expression $CommandtoExecute
-            Invoke-Cmd -arguments $CommandtoExecute -logfile $processlogfile -errorlogfile $processerrorlogfile 
+            $processoutput = Invoke-Cmd -arguments $CommandtoExecute -logfile $processlogfile -errorlogfile $processerrorlogfile 
         }
     }catch{
         $errorMessage = $_
@@ -261,13 +261,12 @@ function Invoke-MSSQLCICDHelperMSBuild {
     
     Write-verbose "MSBuild Started. Continue Checking results..."
  
-    # if($hidden){
-    #     Write-verbose "Starting MSBuild ..."
-    #     $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -WindowStyle Hidden -PassThru
-    # }else{
-    #     Write-verbose "Starting MSBuild ..."
-    #     $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru
-    # }
+    if(!$hidden){
+        "Normal Output: "
+        $processoutput.output
+        "Error Output:"
+        $processoutput.erroroutput
+    }
 
     if(!(Test-Path -Path $result.BuildLogFile)){
         $Result.BuildSucceeded = $false
