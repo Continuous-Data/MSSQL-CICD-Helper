@@ -278,11 +278,11 @@ function Invoke-MSSQLCICDHelperMSBuild {
     }
 
     if($UseInvokeMSBuildModule){
-        [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0
-        $result.BuildDuration = $result.MsBuildProcess.MsBuildProcess.ExitTime - $result.MsBuildProcess.MsBuildProcess.StartTime
+        [bool] $buildReturnedSuccessfulExitCode = $processoutput.ExitCode -eq 0
+        $result.BuildDuration = $processoutput.Duration
     }else{
-        [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.ExitCode -eq 0
-        $result.BuildDuration = $result.MsBuildProcess.ExitTime - $result.MsBuildProcess.StartTime
+        [bool] $buildReturnedSuccessfulExitCode = $processoutput.ExitCode -eq 0
+        $result.BuildDuration = $processoutput.Duration
     }
     
     [bool] $buildOutputDoesNotContainFailureMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Build FAILED." -SimpleMatch) -eq $null
