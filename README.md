@@ -8,18 +8,24 @@
 [![stars badge]][stars]
 [![forks badge]][forks]
 [![issues badge]][issues]
+[![devbuild badge]][devbuild]
+[![masterbuild badge]][masterbuild]
 
 [licence badge]:https://img.shields.io/badge/license-MIT-blue.svg
 [stars badge]:https://img.shields.io/github/stars/tsteenbakkers/MSSQL-CICD-Helper.svg
 [forks badge]:https://img.shields.io/github/forks/tsteenbakkers/MSSQL-CICD-Helper.svg
 [issues badge]:https://img.shields.io/github/issues/tsteenbakkers/MSSQL-CICD-Helper.svg
 [release badge]:https://img.shields.io/github/release/tsteenbakkers/MSSQL-CICD-Helper.svg
+[devbuild badge]
+:https://ci.appveyor.com/api/projects/status/github/MSSQL-CI-CD-Helper?branch=dev&svg=true
 
 [licence]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/blob/master/LICENSE.md
 [stars]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/stargazers
 [forks]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/network
 [issues]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/issues
 [release]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/releases
+[devbuild]
+:https://ci.appveyor.com/api/projects/status/github/MSSQL-CI-CD-Helper?branch=dev
 
 - [Introduction](#introduction)
 - [Support / Contribution](#support--contribution)
