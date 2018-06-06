@@ -212,7 +212,9 @@ function Invoke-MSSQLCICDHelperMSBuild {
         $logbase = Split-Path -path $logfile -Parent
         $result.BuildLogFilePath = $logbase
         $result.BuildLogFile = $logfile
-        $result.FiletoBuild = $filename.FullName 
+        $result.FiletoBuild = $filename.FullName
+        $processlogfile = "$($filename.FullName).msbuildlog.log" 
+        $processerrorlogfile = "$($filename.FullName).msbuilderrorlog.log"  
         
         Write-Verbose "The following build arguments will be used: $MSBuildArguments"
         $configfile['MSBuildExe']
@@ -228,13 +230,21 @@ function Invoke-MSSQLCICDHelperMSBuild {
             #Write-Verbose "Command to be Executed is: cmd.exe $commandtoexecute"
             $result.CommandUsedToBuild = "Command to be Executed is: cmd.exe $commandtoexecute"
 
-            if($hidden){
-                Write-verbose "Starting MSBuild ..."
-                $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -WindowStyle Hidden -PassThru
-            }else{
-                Write-verbose "Starting MSBuild ..."
-                $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru
-            }
+            $processoutput = Invoke-Cmd -arguments $CommandtoExecute -logfile $processlogfile -errorlogfile $processerrorlogfile
+
+            if(!$hidden){ 
+                "Normal Output: " 
+                $processoutput.output 
+                "Error Output:" 
+                $processoutput.erroroutput 
+            } 
+            # if($hidden){
+            #     Write-verbose "Starting MSBuild ..."
+            #     $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -WindowStyle Hidden -PassThru
+            # }else{
+            #     Write-verbose "Starting MSBuild ..."
+            #     $result.MsBuildProcess = Start-Process cmd.exe -ArgumentList $CommandtoExecute -Wait -NoNewWindow -PassThru
+            # }
         }else{
             $CommandtoExecute = "Invoke-MSBuild -Path $($filename.FullName) -logdirectory $($logbase)"
             
@@ -275,8 +285,8 @@ function Invoke-MSSQLCICDHelperMSBuild {
         [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0
         $result.BuildDuration = $result.MsBuildProcess.MsBuildProcess.ExitTime - $result.MsBuildProcess.MsBuildProcess.StartTime
     }else{
-        [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.ExitCode -eq 0
-        $result.BuildDuration = $result.MsBuildProcess.ExitTime - $result.MsBuildProcess.StartTime
+        [bool] $buildReturnedSuccessfulExitCode = $processoutput.ExitCode -eq 0 
+        $result.BuildDuration = $processoutput.Duration 
     }
     
     [bool] $buildOutputDoesNotContainFailureMessage = (Select-String -Path $($result.BuildLogFile) -Pattern "Build FAILED." -SimpleMatch) -eq $null
