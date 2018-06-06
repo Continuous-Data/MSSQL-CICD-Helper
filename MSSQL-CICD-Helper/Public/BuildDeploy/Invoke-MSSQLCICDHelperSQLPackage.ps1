@@ -330,7 +330,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
                     
                 }else{
                     Write-Error "Some of the target Credentials are not filled"
-                    exit 1;
+                    throw;
                 }
             }
 
@@ -352,29 +352,30 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             Write-Verbose "The following Arguments will be used: $shownarguments"
             $result.CommandUsed = "cmd.exe $shownarguments"
             
-            #constructing the process and the arguments to send:
-            $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-            $pinfo.FileName = "cmd.exe"
-            $pinfo.Arguments = $arguments
+            $processoutput = Invoke-Cmd -executable 'cmd.exe' -Arguments $arguments -logfile $result.LogFile -errorlogfile $result.ErrorLogFile
+            # #constructing the process and the arguments to send:
+            # $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+            # $pinfo.FileName = "cmd.exe"
+            # $pinfo.Arguments = $arguments
             
-            #$pinfo.Passthru = $true
-            $pinfo.RedirectStandardError = $true
-            $pinfo.RedirectStandardOutput = $true
-            $pinfo.UseShellExecute = $false
+            # #$pinfo.Passthru = $true
+            # $pinfo.RedirectStandardError = $true
+            # $pinfo.RedirectStandardOutput = $true
+            # $pinfo.UseShellExecute = $false
 
-            if($debug){
-                $pinfo
-            }
-            #executing the command and storing the result inside $p:
-            $p = New-Object System.Diagnostics.Process
-            $p.StartInfo = $pinfo
-            $p.Start() | Out-Null
+            # if($debug){
+            #     $pinfo
+            # }
+            # #executing the command and storing the result inside $p:
+            # $p = New-Object System.Diagnostics.Process
+            # $p.StartInfo = $pinfo
+            # $p.Start() | Out-Null
 
-            $output = $p.StandardOutput.ReadToEnd()
-            $erroroutput =  $p.StandardError.read()
-            $result.Duration = $p.ExitTime - $p.StartTime
-            $output | Out-file -literalpath $logfile -Force
-            $erroroutput | Out-file -literalpath $errorlogfile -Force
+            # $output = $p.StandardOutput.ReadToEnd()
+            # $erroroutput =  $p.StandardError.read()
+            # $result.Duration = $p.ExitTime - $p.StartTime
+            # $output | Out-file -literalpath $logfile -Force
+            # $erroroutput | Out-file -literalpath $errorlogfile -Force
 
 
         }catch{
@@ -383,14 +384,15 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             $result.Succeeded = $false
             Write-Error ($result.Message)
             return $result
-            EXIT 1;
+            throw;
         }
         
         Write-verbose "SQLPackage.exe Started. Continue Checking results..."
         if(!$hidden){
-            
-            $output
-
+            "Normal Output: "
+            $processoutput.output
+            "Error Output:"
+            $processoutput.erroroutput
         }
         
     
@@ -400,11 +402,11 @@ function Invoke-MSSQLCICDHelperSQLPackage {
     
             Write-Error "$($result.message)"
             return $result
-            EXIT 1;
+            throw;
         }
         
         
-        [bool] $ProcessReturnedSuccessfulExitCode = $p.ExitCode -eq 0
+        [bool] $ProcessReturnedSuccessfulExitCode = $processoutput.ExitCode -eq 0
         [bool] $ProcessOutputDoesNotContainFailureMessage = (((Select-String -Path $($result.LogFile) -Pattern "Could not deploy package" -SimpleMatch) -eq $null) -or ((Select-String -Path $($result.LogFile) -Pattern "Initializing deployment (Failed)" -SimpleMatch) -eq $null))
         [bool] $ProcessOutputDoesContainSuccesseMessage = (Select-String -Path $($result.LogFile) -Pattern "Successfully published database." -SimpleMatch -Quiet) -eq $true
         
@@ -414,14 +416,15 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
             $result.Succeeded = $true
             $result.Message = "command executed Successfully"
+            $result.Duration = $processoutput.Duration
     
             if (!$keeplogfiles)
                 {
                     if (Test-Path $($result.LogFile) -PathType Leaf) { Remove-Item -Path $($result.LogFile) -Force }
                     if (Test-Path $($result.ErrorLogFile) -PathType Leaf) { Remove-Item -Path $($result.ErrorLogFile) -Force }
 
-                    $result.LogFile = $null
-                    $result.ErrorLogFile = $null
+                    $result.LogFile = 'Deleted'
+                    $result.ErrorLogFile = 'Deleted'
                 }
     
     
@@ -429,9 +432,10 @@ function Invoke-MSSQLCICDHelperSQLPackage {
 
             $result.Succeeded = $false
             $result.Message = "Processing ""$($result.FiletoProcess)"" Failed! Please check ""$($result.LogFile)"" "
+            $result.Duration = $processoutput.Duration
             $result
             Write-Error "$($result.message)"
-            EXIT 1;
+            throw;
 
         }
     

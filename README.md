@@ -9,17 +9,30 @@
 [![forks badge]][forks]
 [![issues badge]][issues]
 
+## Dev Build
+
+[![devbuild badge]][devbuild]
+
+## Master Build
+
+[![masterbuild badge]][masterbuild]
+
 [licence badge]:https://img.shields.io/badge/license-MIT-blue.svg
 [stars badge]:https://img.shields.io/github/stars/tsteenbakkers/MSSQL-CICD-Helper.svg
 [forks badge]:https://img.shields.io/github/forks/tsteenbakkers/MSSQL-CICD-Helper.svg
 [issues badge]:https://img.shields.io/github/issues/tsteenbakkers/MSSQL-CICD-Helper.svg
 [release badge]:https://img.shields.io/github/release/tsteenbakkers/MSSQL-CICD-Helper.svg
 
+[devbuild badge]:https://ci.appveyor.com/api/projects/status/l7vbq4q6x86rgmtd?svg=true&branch=DEV
+[masterbuild badge]:https://ci.appveyor.com/api/projects/status/l7vbq4q6x86rgmtd?svg=true&branch=master
+
 [licence]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/blob/master/LICENSE.md
 [stars]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/stargazers
 [forks]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/network
 [issues]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/issues
 [release]:https://github.com/tsteenbakkers/MSSQL-CICD-Helper/releases
+[devbuild]:https://ci.appveyor.com/api/projects/status/l7vbq4q6x86rgmtd?branch=DEV
+[masterbuild]:https://ci.appveyor.com/api/projects/status/l7vbq4q6x86rgmtd?branch=master
 
 - [Introduction](#introduction)
 - [Support / Contribution](#support--contribution)

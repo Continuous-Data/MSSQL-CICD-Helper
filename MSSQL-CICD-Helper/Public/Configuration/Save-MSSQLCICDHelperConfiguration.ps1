@@ -87,8 +87,9 @@ Function Save-MSSQLCICDHelperConfiguration {
     # testing if either path exists
     $paths.Keys | ForEach-Object {
         if(-not(Test-Path ($paths[$_]) ) ) {
-            Write-Error "Directory for either MSBuild or SQlPackage was not found. Please rerun Save-MSSQLCICDHelperConfiguration with a correct path"
-            break;
+            Write-Error "Directory: $($paths[$_]) did not contain either Msbuild or SqlPackage. Please rerun Save-MSSQLCICDHelperConfiguration with a correct path"
+            
+            throw;
         }    
     }
     
@@ -125,7 +126,7 @@ Function Save-MSSQLCICDHelperConfiguration {
 
     } else {
         Write-Error "Unknown Platform"
-        EXIT 1;
+        throw;
     }
 
     Write-Verbose 'Testing config path.'
@@ -133,8 +134,7 @@ Function Save-MSSQLCICDHelperConfiguration {
         New-Item -ItemType Directory -Path (Split-Path $ConfigFile) | Out-Null
 
     }else{
-        Write-error "Path not found"
-        EXIT 1;
+        Write-Verbose "Path $ConfigFile found. Overwriting existing file."
     }
 
     $Parameters | Export-Clixml -Path $ConfigFile

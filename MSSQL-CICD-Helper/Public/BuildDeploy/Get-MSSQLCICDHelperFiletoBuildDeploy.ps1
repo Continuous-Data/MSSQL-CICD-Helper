@@ -36,7 +36,7 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
     [cmdletbinding()]
     param(
         [Parameter(Mandatory=$true,
-               HelpMessage='What to find: *.sln, *.dacpac, *.publish.xml *.dtspac or *.sqlproject File. Options are: Solution, DacPac, DTSPack or Project',
+               HelpMessage='What to find: *.sln, *.dacpac, *.publish.xml *.dtspac or *.sqlproject File. Options are: Solution, DacPac, DTSPac or Project',
                Position=0)]
         [ValidateNotNullOrEmpty()]
         $typetofind,
@@ -66,8 +66,13 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
         }
         default {
             Write-Error "Invalid option given for input param -typetofind. valid options are: Solution, Project, dacpac, PublishProfile or dtspac"
-            EXIT 1;
+            throw;
         }
+    }
+
+    if(-not(Test-Path $rootpath)){
+        Write-Error "$rootpath was not found"
+        throw;
     }
 
     $results = Get-ChildItem -Path $rootpath -Filter $buildfilextension -Recurse -ErrorAction SilentlyContinue
@@ -76,7 +81,7 @@ function Get-MSSQLCICDHelperFiletoBuildDeploy {
     
     if($results.Count -lt 1){
         Write-Error 'No Files found! Please check path and re-run Get-MSSQLCICDHelperFiletoBuild. Exiting'
-        EXIT 1;
+        throw;
     }
     elseif($results.Count -gt 1){
         Write-Verbose 'Found multiple files. will return the file with the most recent writedatetime.'

@@ -62,6 +62,7 @@ Function Get-MSSQLCICDHelperPaths {
     )
     
     $exestofind = @()
+    $results = @()
 
     switch($typetofind){
         "MSBuild"{
@@ -76,14 +77,29 @@ Function Get-MSSQLCICDHelperPaths {
         }
         default {
             Write-Error "Invalid option given for input param -typetofind. valid options are: MSBuild, SQLPackage or Both"
-            EXIT 1
+            throw;
         }
     }
+
+    if(-not(Test-Path $rootpath)){
+
+        Write-Error "$rootpath was not found."
+        throw;
+    }
+
     Write-verbose "searching for $exestofind in $rootpath"
+    
 
     $exestofind | ForEach-Object{
         $results += Get-ChildItem -Path $rootpath -filter $_ -Recurse -ErrorAction SilentlyContinue
     }
-    Write-Output 'Found the following full paths for given parameters. Please take note of these and use the desired path in Save-MSSQLCICDHelperConfiguration'
-    $results.FullName
+
+    if($results.Count -lt 1){
+        Write-Error 'No Files found! Please check path and re-run. Exiting'
+        throw;
+    }Else{
+        Write-verbose 'Found the following full paths for given parameters. Please take note of these and use the desired path in Save-MSSQLCICDHelperConfiguration'
+        $results.FullName
+    }
+    
 }
