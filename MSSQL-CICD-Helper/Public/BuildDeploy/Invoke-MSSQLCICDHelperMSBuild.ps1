@@ -230,7 +230,7 @@ function Invoke-MSSQLCICDHelperMSBuild {
             #Write-Verbose "Command to be Executed is: cmd.exe $commandtoexecute"
             $result.CommandUsedToBuild = "Command to be Executed is: cmd.exe $commandtoexecute"
 
-            $processoutput = Invoke-Cmd -arguments $CommandtoExecute -logfile $processlogfile -errorlogfile $processerrorlogfile
+            $processoutput = Invoke-Cmd -executable 'cmd.exe' -arguments $CommandtoExecute -logfile $processlogfile -errorlogfile $processerrorlogfile
 
             if(!$hidden){ 
                 "Normal Output: " 

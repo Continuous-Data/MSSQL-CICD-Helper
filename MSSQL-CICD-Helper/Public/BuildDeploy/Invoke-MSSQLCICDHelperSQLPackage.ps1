@@ -352,7 +352,7 @@ function Invoke-MSSQLCICDHelperSQLPackage {
             Write-Verbose "The following Arguments will be used: $shownarguments"
             $result.CommandUsed = "cmd.exe $shownarguments"
             
-            $processoutput = Invoke-Cmd -Arguments $arguments -logfile $result.LogFile -errorlogfile $result.ErrorLogFile
+            $processoutput = Invoke-Cmd -executable 'cmd.exe' -Arguments $arguments -logfile $result.LogFile -errorlogfile $result.ErrorLogFile
             # #constructing the process and the arguments to send:
             # $pinfo = New-Object System.Diagnostics.ProcessStartInfo
             # $pinfo.FileName = "cmd.exe"

@@ -36,7 +36,7 @@ function Invoke-Cmd {
     #>
         [cmdletbinding()]
         param(
-            [Parameter(Mandatory=$false,
+            [Parameter(Mandatory=$true,
                    HelpMessage='What to find: *.sln, *.dacpac, *.publish.xml *.dtspac or *.sqlproject File. Options are: Solution, DacPac, DTSPac or Project',
                    Position=0)]
             [ValidateNotNullOrEmpty()]
@@ -70,10 +70,19 @@ function Invoke-Cmd {
     $poutput.Succeeded = $null
     $poutput.ExitCode = $null
 
+    # if(!(Test-Path -Path $logfile) -or !(Test-Path -Path $errorlogfile)){
+        
+    #     $poutput.Message = "Could not find file at '$($result.BuildLogFile)' unable to check for correct build."
+
+    #     Write-Error "$($poutput.message)"
+    #     return $result
+    #     throw;
+    # }
+
     try{
 
         $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-        $pinfo.FileName = "cmd.exe"
+        $pinfo.FileName = $executable
         $pinfo.Arguments = $arguments
         
         #$pinfo.Passthru = $true
