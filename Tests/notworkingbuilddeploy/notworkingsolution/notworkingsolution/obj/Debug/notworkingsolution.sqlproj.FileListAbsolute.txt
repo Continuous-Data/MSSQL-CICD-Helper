@@ -1,8 +1,0 @@
-D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\notworkingbuilddeploy\notworkingsolution\notworkingsolution\bin\Debug\notworkingsolution.dacpac
-D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\notworkingbuilddeploy\notworkingsolution\notworkingsolution\obj\Debug\notworkingsolution.sqlprojAssemblyReference.cache
-D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\notworkingbuilddeploy\notworkingsolution\notworkingsolution\obj\Debug\Model.xml
-D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\notworkingbuilddeploy\notworkingsolution\notworkingsolution\obj\Debug\refactor.xml
-D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\notworkingbuilddeploy\notworkingsolution\notworkingsolution\obj\Debug\postdeploy.sql
-D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\notworkingbuilddeploy\notworkingsolution\notworkingsolution\obj\Debug\predeploy.sql
-D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\notworkingbuilddeploy\notworkingsolution\notworkingsolution\obj\Debug\notworkingsolution.dll
-D:\users\steenbto\Documents\GitHub\MSSQL-CICD-Helper\Tests\notworkingbuilddeploy\notworkingsolution\notworkingsolution\obj\Debug\notworkingsolution.pdb
