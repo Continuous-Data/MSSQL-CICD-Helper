@@ -250,7 +250,10 @@ function Invoke-MSSQLCICDHelperMSBuild {
             
             $CommandtoExecute += " -KeepBuildLogOnSuccessfulBuilds"
             
-            $CommandtoExecute += " -MsBuildParameters ""$($MSBuildArguments)"""
+            if($MSBuildArguments){
+                
+                $CommandtoExecute += " -MsBuildParameters ""$($MSBuildArguments)"""
+            }
 
             if ($InvokeMSBuildParameters){
                 $CommandtoExecute += " $($InvokeMSBuildParameters)"
@@ -282,8 +285,8 @@ function Invoke-MSSQLCICDHelperMSBuild {
     }
 
     if($UseInvokeMSBuildModule){
-        [bool] $buildReturnedSuccessfulExitCode = $processoutput.ExitCode -eq 0
-        $result.BuildDuration = $processoutput.Duration
+        [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0 
+        $result.BuildDuration = $result.MsBuildProcess.MsBuildProcess.ExitTime - $result.MsBuildProcess.MsBuildProcess.StartTime
     }else{
         [bool] $buildReturnedSuccessfulExitCode = $processoutput.ExitCode -eq 0
         $result.BuildDuration = $processoutput.Duration
