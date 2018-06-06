@@ -762,8 +762,63 @@ InModuleScope MSSQL-CICD-Helper {
     }
     Describe "Invoke-Cmd" -Tags Build {
 
+        #New-Item  -Path $TestDrive\poutput.log -ItemType File
+        #New-Item  -Path $TestDrive\errorpoutput.log -ItemType File
+
+        $executable = 'powershell.exe'
+        $passingarguments = 'Write-Output ''Test sentence for assertion'''
+        $passingAssertion = 'Test sentence for assertion'
+        $failingarguments = 'throw'
+        $FailingAssertion = ''
+        $logfile = "$TestDrive\poutput.log"
+        $errorlogfile = "$TestDrive\errorpoutput.log"
+
+        It "Mandatory Parameters"{
+            (Get-Command "Invoke-Cmd").Parameters['Executable'].Attributes.Mandatory | Should Be $true
+            (Get-Command "Invoke-Cmd").Parameters['Arguments'].Attributes.Mandatory | Should Be $true
+            (Get-Command "Invoke-Cmd").Parameters['Logfile'].Attributes.Mandatory | Should Be $true
+            (Get-Command "Invoke-Cmd").Parameters['errorlogfile'].Attributes.Mandatory | Should Be $true
+        }
+
+        It "Should not throw when all parameters are entered on a successfull command"{
+            { Invoke-Cmd -executable $executable -arguments $passingarguments -logfile $logfile -errorlogfile $errorlogfile  } | Should not Throw
+        }
+
+        It "Should produce the correct results when calling write-output command"{
+            $results = Invoke-Cmd -executable $executable -arguments $passingarguments -logfile $logfile -errorlogfile $errorlogfile
+            #getting results
+            $results.ExitCode | Should -BeExactly 0
+            $results.ErrorOutput | Should -BeExactly -1
+            $results.Output.Trim() | Should -BeExactly $passingAssertion
+            #test created files
+            Test-Path -Path $logfile | Should be $true
+            Test-Path -Path $errorlogfile | Should be $true
+
+            $producedlogfile = Get-Content $logfile 
+            $producederrorlogfile = Get-Content $errorlogfile 
+
+            $producedlogfile[0].Trim() | Should -BeExactly $passingAssertion
+            $producederrorlogfile.Trim() | Should -BeExactly -1
+        }
+
+        It "Should produce the correct results when calling throw command"{
+            $results = Invoke-Cmd -executable $executable -arguments $failingarguments -logfile $logfile -errorlogfile $errorlogfile
+            
+            $results.ExitCode | Should -BeExactly 1
+            $results.ErrorOutput | Should -BeExactly 83
+            $results.Output | Should -BeExactly $FailingAssertion
+
+            Test-Path -Path $logfile | Should be $true
+            Test-Path -Path $errorlogfile | Should be $true
+
+            $producedlogfile = Get-Content $logfile 
+            $producederrorlogfile = Get-Content $errorlogfile 
+
+            $producedlogfile | Should -BeExactly $FailingAssertion
+            $producederrorlogfile.Trim() | Should -BeExactly 83
+        }
     }
-    
+
     Describe "Invoke-MSSQLCICDHelperMSBuild" -Tags Build {
         Context "Errors & Dependencies" {
             #Context "test nested context"{}
