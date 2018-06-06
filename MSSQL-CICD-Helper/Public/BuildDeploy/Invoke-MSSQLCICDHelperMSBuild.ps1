@@ -261,7 +261,17 @@ function Invoke-MSSQLCICDHelperMSBuild {
 
             $result.CommandUsedToBuild = "Command to be Executed is: $commandtoexecute"
             Write-verbose "Starting MSBuild ..."
-            $result.MsBuildProcess = Invoke-Expression $CommandtoExecute
+
+            $processoutput = Invoke-Cmd -executable 'powershell.exe' -arguments $CommandtoExecute -logfile $processlogfile -errorlogfile $processerrorlogfile
+
+            if(!$hidden){ 
+                "Normal Output: " 
+                $processoutput.output 
+                "Error Output:" 
+                $processoutput.erroroutput 
+            } 
+
+            #$result.MsBuildProcess = Invoke-Expression $CommandtoExecute
         }
     }catch{
         $errorMessage = $_
@@ -285,8 +295,10 @@ function Invoke-MSSQLCICDHelperMSBuild {
     }
 
     if($UseInvokeMSBuildModule){
-        [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0 
-        $result.BuildDuration = $result.MsBuildProcess.MsBuildProcess.ExitTime - $result.MsBuildProcess.MsBuildProcess.StartTime
+        # [bool] $buildReturnedSuccessfulExitCode = $result.MsBuildProcess.MsBuildProcess.ExitCode -eq 0 
+        # $result.BuildDuration = $result.MsBuildProcess.MsBuildProcess.ExitTime - $result.MsBuildProcess.MsBuildProcess.StartTime
+        [bool] $buildReturnedSuccessfulExitCode = $processoutput.ExitCode -eq 0
+        $result.BuildDuration = $processoutput.Duration
     }else{
         [bool] $buildReturnedSuccessfulExitCode = $processoutput.ExitCode -eq 0
         $result.BuildDuration = $processoutput.Duration
