@@ -70,14 +70,17 @@ function Invoke-Cmd {
     $poutput.Succeeded = $null
     $poutput.ExitCode = $null
 
-    # if(!(Test-Path -Path $logfile) -or !(Test-Path -Path $errorlogfile)){
-        
-    #     $poutput.Message = "Could not find file at '$($result.BuildLogFile)' unable to check for correct build."
+    $logbase = Split-Path -path $logfile -Parent
+    $errorlogbase = Split-Path -path $logfile -Parent
 
-    #     Write-Error "$($poutput.message)"
-    #     return $result
-    #     throw;
-    # }
+    if(-not(Test-Path -Path $logbase) -or -not(Test-Path -Path $errorlogbase)){
+        
+        $poutput.Message = "Could not find parent of $logfile or $errorlogfile unable to proceed to execute Cmd."
+
+        Write-Error "$($poutput.message)"
+        return $result
+        throw;
+    }
 
     try{
 

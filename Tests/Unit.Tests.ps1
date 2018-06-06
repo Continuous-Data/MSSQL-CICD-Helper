@@ -781,7 +781,19 @@ InModuleScope MSSQL-CICD-Helper {
         }
 
         It "Should not throw when all parameters are entered on a successfull command"{
-            { Invoke-Cmd -executable $executable -arguments $passingarguments -logfile $logfile -errorlogfile $errorlogfile  } | Should not Throw
+            { Invoke-Cmd -executable $executable -arguments $passingarguments -logfile $logfile -errorlogfile $errorlogfile } | Should not Throw
+        }
+
+        It "Should throw on an invalid logfile path parent"{
+            { Invoke-Cmd -executable $executable -arguments $passingarguments -logfile $testdrive\NonExistingFolder\file.log -errorlogfile $errorlogfile -erroraction stop } | Should Throw
+        }
+
+        It "Should throw on an invalid errorlogfile path parent"{
+            { Invoke-Cmd -executable $executable -arguments $passingarguments -logfile $logfile -errorlogfile $testdrive\NonExistingFolder\file.log -erroraction stop } | Should Throw
+        }
+
+        It "Should throw when a non existing executable is used"{
+            { Invoke-Cmd -executable 'failingassert.error' -arguments $passingarguments -logfile $logfile -errorlogfile $errorlogfile -erroraction stop } | Should Throw
         }
 
         It "Should produce the correct results when calling write-output command"{
