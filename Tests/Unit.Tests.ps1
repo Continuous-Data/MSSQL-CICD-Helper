@@ -17,6 +17,7 @@ InModuleScope MSSQL-CICD-Helper {
             
             # Assert
             $version | should be 'v1.0.0'
+            Assert-MockCalled currentversion -Exactly 1 -Scope It
         }
     }
 
@@ -43,6 +44,9 @@ InModuleScope MSSQL-CICD-Helper {
             $results.SQLPackageExe | Should be 'C:\pestertest\SQLPackage.exe'
             $results.MSBuildExe | Should be 'C:\pestertest\MSBuild.exe'
             $results.version | Should be "$currentversion"
+
+            Assert-MockCalled Export-Clixml -Exactly 1 -Scope It
+            Assert-MockCalled Test-Path -Exactly 3 -Scope It
         }
 
         It "Saves without throwing"{
@@ -50,6 +54,9 @@ InModuleScope MSSQL-CICD-Helper {
             {
                 Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
             } | Should not throw
+
+            Assert-MockCalled Export-Clixml -Exactly 1 -Scope It
+            Assert-MockCalled Test-Path -Exactly 3 -Scope It
 
         }
         # prepare fail
@@ -60,6 +67,8 @@ InModuleScope MSSQL-CICD-Helper {
             {
                 Save-MSSQLCICDHelperConfiguration -SQLPackageExePath 'C:\pestertest\SQLPackage.exe' -MSBuildExePath 'C:\pestertest\MSBuild.exe' -erroraction stop
             } | Should throw
+
+            Assert-MockCalled Test-Path -Exactly 1 -Scope It
             
         }
     }
@@ -95,6 +104,10 @@ InModuleScope MSSQL-CICD-Helper {
             $results.SQLPackageExe | Should BeExactly $sqlpath
             $results.MSBuildExe | Should BeExactly $buildpath
             $results.version | Should BeExactly $currentversion
+
+            Assert-MockCalled currentversion -Exactly 1 -Scope It
+            Assert-MockCalled Import-Clixml -Exactly 1 -Scope It
+            Assert-MockCalled Test-Path -Exactly 1 -Scope It
         }
 
         It "imports the config w/o throwing an error"{
@@ -102,6 +115,10 @@ InModuleScope MSSQL-CICD-Helper {
             {
                 ImportConfig -erroraction stop
             } | Should not throw
+
+            Assert-MockCalled currentversion -Exactly 1 -Scope It
+            Assert-MockCalled Import-Clixml -Exactly 1 -Scope It
+            Assert-MockCalled Test-Path -Exactly 1 -Scope It
         }
 
         # prepare fail
@@ -112,6 +129,9 @@ InModuleScope MSSQL-CICD-Helper {
             {
                 ImportConfig -erroraction stop
             } | Should  throw
+
+            Assert-MockCalled currentversion -Exactly 1 -Scope It
+            Assert-MockCalled Test-Path -Exactly 1 -Scope It
         }
 
     }
@@ -148,6 +168,8 @@ InModuleScope MSSQL-CICD-Helper {
             $results.SQLPackageExe | Should BeExactly $sqlpath
             $results.MSBuildExe | Should BeExactly $buildpath
             $results.version | Should BeExactly $currentversion
+
+            Assert-MockCalled importconfig -Exactly 1 -Scope It
         }
 
         It "imports the config w/o throwing an error"{
@@ -155,6 +177,8 @@ InModuleScope MSSQL-CICD-Helper {
             {
                 Get-MSSQLCICDHelperConfiguration -erroraction stop
             } | Should not throw
+
+            Assert-MockCalled importconfig -Exactly 1 -Scope It
         }
 
         # prepare fail
@@ -165,13 +189,15 @@ InModuleScope MSSQL-CICD-Helper {
             {
                 Get-MSSQLCICDHelperConfiguration -erroraction stop
             } | Should  throw "Could not import config. Make sure it exists or save a new config."
+            
+            Assert-MockCalled importconfig -Exactly 1 -Scope It
         }
 
     }
 
     Describe "Get-MSSQLCICDHelperPaths" -Tags Build {
 
-        #mock 1 MSBuild.exe and 2 SQLPackage.exe 1 non existing file.
+        #create 1 MSBuild.exe and 2 SQLPackage.exe 1 non existing file.
 
         New-Item  -Path $TestDrive -Name ExePath1 -ItemType Directory
         New-Item  -Path $TestDrive -Name ExePath2 -ItemType Directory
@@ -351,7 +377,7 @@ InModuleScope MSSQL-CICD-Helper {
 
     Describe "Get-MSSQLCICDHelperFiletoBuildDeploy" -Tags Build {
     
-        #mock 1 of each type, dummyfile, a dir with multiple of the same and an empty dir
+        #create 1 of each type, dummyfile, a dir with multiple of the same and an empty dir
         # folders
         New-Item  -Path $TestDrive -Name Single -ItemType Directory
         New-Item  -Path $TestDrive -Name Multiple -ItemType Directory
@@ -841,6 +867,8 @@ InModuleScope MSSQL-CICD-Helper {
 
             It "Should throw when Invoke-MSBuild is not Available"{
                 {Invoke-MSSQLCICDHelperMSBuild -UseInvokeMSBuildModule -erroraction stop} | Should throw
+                
+                Assert-MockCalled Get-Module -Exactly 1 -Scope It
             }
 
             New-Item  -Path $TestDrive -Name Solution -ItemType Directory
@@ -875,8 +903,10 @@ InModuleScope MSSQL-CICD-Helper {
 
             it "Should throw an error on an empty path" {
                 {Invoke-MSSQLCICDHelperMSBuild -filename $testRoot\NonExisting.sln -erroraction stop} | Should throw
-
+                
+                Assert-MockCalled importconfig -Exactly 0 -Scope It
             }
+            
             mock Get-MSSQLCICDHelperFiletoBuildDeploy {throw}
             #mock Get-ChildItem {}
             mock Invoke-Expression {throw}
@@ -889,6 +919,9 @@ InModuleScope MSSQL-CICD-Helper {
             it "Should throw when an exception occurs with Autodiscovery filename" {
 
                 {Invoke-MSSQLCICDHelperMSBuild -erroraction stop} | Should throw
+
+                Assert-MockCalled importconfig -Exactly 1 -Scope It
+                Assert-MockCalled Get-MSSQLCICDHelperFiletoBuildDeploy -Exactly 1 -Scope It
             }
         }
     }
